@@ -1,0 +1,32 @@
+@if (socioList$ | async; as list) {
+    <table>
+        <thead>
+            <tr>
+               <th>dni</th> 
+               <th>nombre</th> 
+               <th>apellidos</th> 
+               <th>pagado</th> 
+               <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for(item of list; track item.dni) {
+        <tr> 
+            <td>{{item.dni}}</td>
+            <td>{{item.nombre}}</td>
+            <td>{{item.apellidos}}</td>
+            <td>{{item.pagado}}</td>
+            <td>
+                <button (click)="getSocio(item.n_socio)">Seleccionar</button><br>
+                <button (click)="deleteSocio(item.n_socio)">Eliminar</button>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table><br>
+
+    <button (click)="addSocio()">Añadir Socio</button>
+}
+@if(errorMessage) {
+    <app-error-message [errorMessage]="errorMessage"/>
+}

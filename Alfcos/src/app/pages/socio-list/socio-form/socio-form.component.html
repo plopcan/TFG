@@ -1,0 +1,35 @@
+@if(this.socio) {
+    <img src="{{this.imgLink}}" alt="Socio"/>
+}
+<form [formGroup]='sF' (ngSubmit)="sendData()">
+    <label for="nombre">Nombre del socio:</label>
+    <input type="text" id="nombre" formControlName="nombre"><br>
+    <label for="apellidos">Apellidos del socio:</label>
+    <input type="text" id="apellidos" formControlName="apellidos"><br>
+    <select id="sexo" formControlName="sexo">
+        <option value='hombre'>Hombre</option>
+        <option value="mujer">Mujer</option>
+        <option value="otro">Otro</option>
+    </select><br>
+    <select id="tipoDocumento" formControlName="tipoDocumento">
+        <option value="dni">DNI</option>
+        <option value="nif">NIF</option>
+    </select><br>
+    <label for="dni">DNI del socio:</label>
+    <input type="text" id="dni" formControlName="dni"><br>
+    <label for="direccion">Direccion del socio:</label>
+    <input type="text" id="direccion" formControlName="direccion"><br>
+    <label for="c_postal">Codigo Postal del socio:</label>
+    <input type="text" id="c_postal" formControlName="c_postal"><br>
+    <label for="tlf">Telefono del socio:</label>
+    <input type="text" id="tlf" formControlName="tlf"><br>
+    <label for="nacimiento">Fecha de nacimiento del socio:</label>
+    <input type="date" id="nacimiento" formControlName="nacimiento"><br>
+    <label for="foto">Foto del socio:</label>
+    <input type="file" id="foto" name="foto"><br>
+    @if(this.socio) {
+        <button type="submit">Actualizar</button>
+    } @else {
+        <button type="submit">Añadir</button>
+    }
+</form>

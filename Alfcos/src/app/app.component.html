@@ -1,0 +1,26 @@
+
+
+<div class="container-fluid">
+      <header>
+        <h1>AlfCos</h1>
+  @if(isloged()){
+    <nav>
+    <ul>
+      <li><a routerLink="/">cuentas</a></li>
+      <li><a routerLink="/socios">socios</a></li>
+      <li><a routerLink="/usuarios">Usuarios</a></li>
+      <li><a routerLink="/usuario">Usuario</a></li>
+    </ul>
+    </nav>
+  }
+  
+</header>
+<main>
+<router-outlet />
+</main>
+<footer>
+    <h3>AlfCos</h3>
+    <p></p>
+    <button type="button" class="btn btn-danger">Logout</button>
+  </footer>
+</div>
