@@ -6,9 +6,9 @@
     --main-link-color: #08f;
     --notMain-bg-color: #0C453F;
     --notMainButton-bg-color: #54C1A0;
-    --table-border-color: #FFBF69;
-    --mainButton-bg-color: #FF9F1C;
-    --form-bg-color: #FBF6ED;
+    --table-border-color: #69cbff;
+    --mainButton-bg-color: #771cff;
+    --form-bg-color: #edf8fb;
 }
 
 html, body {
@@ -32,16 +32,22 @@ html, body {
 header, footer {
     background-color: var(--notMain-bg-color);
     color: white;
-    padding: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
     width: 100%;
-
+    .lead{
+        font-weight: bold;
+    }
     button {
         background-color: var(--notMain-bg-color);
         color: white;
         padding: 0.5em 1em;
         border: none;
-        border-radius: 5px;
+        border-radius: 5px 5px 0 0;
         cursor: pointer;
+        width: 10em;
+        height: 3em;
 
     }
 

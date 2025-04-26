@@ -14,18 +14,18 @@
         <tr> 
             <td>{{item.dni}}</td>
             <td>{{item.nombre}}</td>
-            <td>{{item.apellidos}}</td>
+            <td>{{item.apellido}}</td>
             <td>{{item.pagado}}</td>
             <td>
-                <button (click)="getSocio(item.n_socio)">Seleccionar</button><br>
-                <button (click)="deleteSocio(item.n_socio)">Eliminar</button>
+                <button class="btn btn-info btn-sm" (click)="getSocio(item.n_socio)">Seleccionar</button><br>
+                <button class="btn btn-dark btn-sm mt-1" (click)="deleteSocio(item.n_socio)">Eliminar</button>
             </td>
         </tr>
         }
         </tbody>
     </table><br>
 
-    <button (click)="addSocio()">Añadir Socio</button>
+    <button class="btn btn-success" (click)="addSocio()">Añadir Socio</button>
 }
 @if(errorMessage) {
     <app-error-message [errorMessage]="errorMessage"/>

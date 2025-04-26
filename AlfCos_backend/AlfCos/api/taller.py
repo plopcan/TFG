@@ -38,12 +38,13 @@ class TallerViewSet(viewsets.ModelViewSet):
         serializer = TallerSerializer(Tallers, many=True)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['post'], url_path='inscribir')
+    @action(detail=False, methods=['post'], url_path='inscribir')
     def inscribirSocio(self, request):
-        taller = request.query_params.get()
-        n_socio = request.query_params.get('n_socio')
+        id_taller = request.data.get('id_taller')
+        n_socio = request.data.get('n_socio')
         try:
-            socio = Socio.objects.get(pk=n_socio)
+            socio = Socio.objects.get(n_socio=n_socio)
+            taller = Taller.objects.get(n_taller=id_taller)
         except Socio.DoesNotExist:
             return Response({'error': 'Socio no encontrado'}, status=404)
 
@@ -56,3 +57,50 @@ class TallerViewSet(viewsets.ModelViewSet):
 
         serializer = ClaseSerializer(clase)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='quitar')
+    def quitarSocio(self, request):
+        id_taller = request.data.get('id_taller')
+        nombre = request.data.get('nombre')
+        apellido = request.data.get('apellidos')
+        try:
+            socio = Socio.objects.get(nombre=nombre, apellido=apellido)
+            taller = Taller.objects.get(n_taller=id_taller)
+            clase = Clase.objects.get(socio=socio, taller=taller)
+        except Socio.DoesNotExist:
+            return Response({'error': 'Socio no encontrado'}, status=404)
+        except Taller.DoesNotExist:
+            return Response({'error': 'Taller no encontrado'}, status=404)
+        except Clase.DoesNotExist:
+            return Response({'error': 'El socio no está inscrito en este taller'}, status=400)
+
+        clase.delete()
+        return Response({'message': 'Socio eliminado del taller correctamente'})
+
+    @action(detail=False, methods=['post'], url_path='listar-socios')
+    def listarSocios(self, request):
+        id_taller = request.data.get('id_taller')
+        try:
+            taller = Taller.objects.get(n_taller=id_taller)
+        except Taller.DoesNotExist:
+            return Response({'error': 'Taller no encontrado'}, status=404)
+
+        clases = Clase.objects.filter(taller=taller)
+        socios = [{'nombre': clase.socio.nombre, 'apellidos': clase.socio.apellido, 'fecha': f"{clase.fecha_inscripcion}"} for clase in clases]
+        return Response(socios)
+
+    def list(self, request, *args, **kwargs):
+        talleres = Taller.objects.all()
+        data = []
+        for taller in talleres:
+            plazas_ocupadas = Clase.objects.filter(taller=taller).count()
+            plazas_libres = taller.plazas - plazas_ocupadas
+            data.append({
+                'n_taller': taller.n_taller,
+                'nombre': taller.nombre,
+                'hora_inicio': f"{taller.hora_inicio}",
+                'hora_fin': taller.hora_fin,
+                'dia': ', '.join([dia.dia for dia in taller.dia.all()]),
+                'plazas_libres': plazas_libres
+            })
+        return Response(data)

@@ -1,24 +1,21 @@
-
-
 <div class="container-fluid">
-      <header>
-        <h1>AlfCos</h1>
-  @if(isloged()){
-    <nav>
-    <ul>
-      <li><a routerLink="/">cuentas</a></li>
-      <li><a routerLink="/socios">socios</a></li>
-      <li><a routerLink="/usuarios">Usuarios</a></li>
-      <li><a routerLink="/usuario">Usuario</a></li>
-    </ul>
-    </nav>
-  }
-  
-</header>
-<main>
-<router-outlet />
-</main>
-<footer>
+  <header>
+    <h1>AlfCos</h1>
+    @if(isloged()){
+      <nav>
+          <button class="lead" (click)="navigateTo('/')">Inicio</button>
+          <button class="lead" (click)="navigateTo('/socios')">Socios</button>
+          <button class="lead" (click)="navigateTo('/usuarios')">Usuarios</button>
+          <button class="lead" (click)="navigateTo('/talleres')">Talleres</button>
+          <button class="lead" (click)="navigateTo('/eventos')">Eventos</button>
+          <button class="lead" (click)="navigateTo('/cuentas')">Cuentas</button>
+      </nav>
+    }
+  </header>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+  <footer>
     <h3>AlfCos</h3>
     <p></p>
     <button type="button" class="btn btn-danger">Logout</button>

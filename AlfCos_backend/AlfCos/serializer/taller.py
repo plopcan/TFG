@@ -9,3 +9,6 @@ class TallerSerializer(serializers.ModelSerializer):
         fields = ('n_taller', 'nombre', 'descripcion', 'monitor', 'hora_inicio', 'hora_fin', 'plazas', 'dia')
         read_only_fields = ('n_taller',)
         depth = 1
+        extra_kwargs = {
+            "dia": {'required': False},
+        }

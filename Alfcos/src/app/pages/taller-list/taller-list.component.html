@@ -1,0 +1,32 @@
+@if (tallerList$ | async; as list) {
+    <table>
+        <thead>
+            <tr>
+               <th>nombre</th> 
+               <th>hora</th> 
+               <th>dias</th> 
+               <th>plazas libres</th> 
+               <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for(item of list; track item.n_taller) {
+        <tr> 
+            <td>{{item.nombre}}</td>
+            <td>{{item.hora_inicio}} - {{item.hora_fin}}</td>
+            <td>{{item.dia}}</td>
+            <td>{{item.plazasLibres}}</td>
+            <td>
+                <button (click)="getTaller(item.n_taller)">Seleccionar</button><br>
+                <button (click)="deleteTaller(item.n_taller)">Eliminar</button>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table><br>
+
+    <button (click)="addTaller()">Añadir Taller</button>
+}
+@if(errorMessage) {
+    <app-error-message [errorMessage]="errorMessage"/>
+}

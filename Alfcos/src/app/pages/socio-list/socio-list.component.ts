@@ -41,11 +41,24 @@ export class SocioListComponent implements OnInit {
   }
 
   addSocio() {
-    this.showForm = true;
-    this.socio$.next(undefined); // Asegúrate de que el formulario esté vacío
+    this.service.clear();
+    this.router.navigate(['/socioForm']);
   }
-
   deleteSocio(n_socio: number) {
-    this.service.deleteSocio(n_socio);
+    this.service.deleteSocio(n_socio).subscribe(
+      () => {
+        console.log('Socio eliminado');
+        this.socioList$ = this.service.getSocioList().pipe(
+          catchError((error: string) => {
+            this.errorMessage = error;
+            return EMPTY;
+          })
+        );
+      },
+      (error) => {
+        console.error('Error al eliminar el socio:', error);
+        this.errorMessage = "Error al eliminar el socio";
+      }
+    );
   }
 }

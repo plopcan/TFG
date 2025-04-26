@@ -1,38 +1,5 @@
 @if(this.isloged()){
     @if(userList$ | async; as list){
-        <details>
-            <summary>Crear nuevo usuario</summary>
-                <form [formGroup]="newUserForm" (ngSubmit) = "addUser()">
-                <select id="tipoDocumento" formControlName="tipoDocumento">
-                    <option value="dni">DNI</option>
-                    <option value="nie">NIE</option>
-                </select><br>
-                <label for="dni">Identificador del usuario: </label>
-               <!-- <input type="text" formControlName="dni" id="dni"  (keyup)="searchSocio($event)"/>
-                @if(socioList$.length > 0){
-                    @for (socio of socioList$; track socio.dni) {
-                    <ul>
-                        <li>
-                            <button type="button" (click)="setSocio(socio.dni, 'newForm', $event)">{{socio.dni}}<br/>{{socio.nombre}} {{socio.apellidos}}</button>
-                        </li>
-                    </ul>
-                }}<br/>-->
-                <label for="user">Nombre clave del usuario:</label>
-                <input type="text" formControlName="user" id="user"/><br/>
-                <label for="user">Rol del usuario:</label>
-                <input type="text" formControlName="rol" id="rol"/><br/>
-                <label for="user">Nueva contraseña:</label>
-                <input type="password" formControlName="new_psw" id="new"/><br/>
-                <label for="user">Confirmar nueva contraseña:</label>
-                <input type="password" formControlName="new_psw_confirm" id="confirm"/><br/>
-                <button type="submit">Añadir</button>
-                @if(submitted && f['new_psw_confirm'].errors){
-                @if(f['new_psw_confirm'].errors['matching']){
-                    <div>Confirm Password does not match</div>
-                }
-                }
-            </form>
-        </details>
         <table>
             <thead>
                 <tr>
@@ -50,45 +17,16 @@
                     <td>{{item.n_socio}}</td>
                     <td>
                         @if(item.rol != "admin"){
-                            <button (click)="delete(item.n_socio.toString())">Eliminar</button>
+                            <button (click)="delete(item.n_socio)">Eliminar</button>
                         }
-                        <button (click)="getUser(item.nombre)">Seleccionar</button></td>
+                        <button (click)="getUser(item.n_socio)">Seleccionar</button></td>
                     </tr>
                 }
                 </tbody>
         </table>
-        @if(this.user != null){
-            <form [formGroup]="oldUserForm" (ngSubmit) = "updateUser()">
-                <select id="tipoDocumento" formControlName="tipoDocumento">
-                    <option value="dni">DNI</option>
-                    <option value="nie">NIE</option>
-                </select><br>
-                <label for="dni">Identificador del usuario: </label>
-                <!--<input type="text" formControlName="dni" value="{{user.n_socio}}" id="dni" (keyup)="searchSocio($event)"/>
-                @if(socioList$.length > 0){
-                    @for (socio of socioList$; track socio.dni) {
-                    <ul>
-                        <li><button>{{socio.dni}}<br/>{{socio.nombre}} {{socio.apellidos}}</button></li>
-                    </ul>
-                }}<br/>-->
-                <input type="hidden" formControlName="id" value="{{user.n_socio}}" id="id"/>
-                <label for="user">Nombre clave del usuario:</label>
-                <input type="text" formControlName="user" value="{{user.n_socio}}" id="user"/><br/>
-                <label for="user">Rol del usuario:</label>
-                <input type="text" formControlName="rol" value="{{user.rol}}" id="rol"/><br/>
-                <label for="user">Nueva contraseña:</label>
-                <input type="password" formControlName="new_psw" id="new"/><br/>
-                <label for="user">Confirmar nueva contraseña:</label>
-                <input type="password" formControlName="new_psw_confirm" id="confirm"/><br/>
-                <button type="submit">Actualizar</button>
-                @if(submitted && f['new_psw_confirm'].errors){
-                @if(f['new_psw_confirm'].errors['matching']){
-                    <div>Confirm Password does not match</div>
-                }
-                }
-            </form>
-            
-<app-error-message [errorMessage]="errorMessage"></app-error-message>
-        }
+        <button (click)="addUser()">Añadir Usuario</button>
+    }
+    @if(errorMessage) {
+        <app-error-message [errorMessage]="errorMessage"/>
     }
 }

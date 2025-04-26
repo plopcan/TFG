@@ -1,0 +1,27 @@
+<div *ngIf="cuenta">
+  <h3>Cuenta Details</h3>
+  <p>ID: {{ cuenta.id_cuenta }}</p>
+  <p>Description: {{ cuenta.descripcion }}</p>
+  <p>Amount: {{ cuenta.cantidad }}</p>
+  <p>Date: {{ cuenta.fecha }}</p>
+  <p>Type: {{ cuenta.tipo }}</p>
+  <p>Anulada: {{ cuenta.anulada }}</p>
+</div>
+
+<div *ngIf="cuota">
+  <h3>Cuota Details</h3>
+  <p>ID: {{ cuota.id_cuenta }}</p>
+  <p>Description: {{ cuota.descripcion }}</p>
+  <p>Amount: {{ cuota.cantidad }}</p>
+  <p>Date: {{ cuota.fecha }}</p>
+  <p>Socio ID: {{ cuota.n_socio }}</p>
+</div>
+
+<div *ngIf="cuentaEvento">
+  <h3>Cuenta Evento Details</h3>
+  <p>ID: {{ cuentaEvento.id_cuenta }}</p>
+  <p>Description: {{ cuentaEvento.descripcion }}</p>
+  <p>Amount: {{ cuentaEvento.cantidad }}</p>
+  <p>Date: {{ cuentaEvento.fecha }}</p>
+  <p>Event ID: {{ cuentaEvento.eventoId }}</p>
+</div>

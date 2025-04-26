@@ -2,11 +2,11 @@ export interface Socio {
     n_socio: number
     dni: string
     nombre: string
-    apellidos: string
+    apellido: string
     email: string
-    sexo: string
+    sexo_id: string
     pagado: boolean
-    c_postal: number
+    c_postal: string
     telefono: string
     foto: string
     direccion: string

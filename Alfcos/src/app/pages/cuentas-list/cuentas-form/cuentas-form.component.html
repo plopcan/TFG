@@ -1,0 +1,30 @@
+<form [formGroup]="cuentasForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="descripcion">Descripción:</label>
+    <input id="descripcion" formControlName="descripcion" type="text" />
+  </div>
+  <div>
+    <label for="cantidad">Cantidad:</label>
+    <input id="cantidad" formControlName="cantidad" type="number" />
+  </div>
+  <div>
+    <label for="tipo">Tipo:</label>
+    <select id="tipo_id" formControlName="tipo_id">
+      <option value="">Seleccione un tipo</option>
+      <option value="2">Cuota</option>
+      <option value="4">Gasto</option>
+      <option value="3">Ingreso</option>
+      <option value="1">CuentaEvento</option>
+    </select>
+  </div>
+  <div *ngIf="cuentasForm.get('tipo_id')?.value === '2'">
+    <label for="n_socio">Número de Socio:</label>
+    <input id="n_socio" formControlName="n_socio" type="text" />
+  </div>
+  <div *ngIf="cuentasForm.get('tipo_id')?.value === '1'">
+    <label for="id_evento">ID del Evento:</label>
+    <input id="id_evento" formControlName="id_evento" type="text" />
+  </div>
+  <button type="submit" [disabled]="cuentasForm.invalid">Crear Cuenta</button>
+</form>
+

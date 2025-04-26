@@ -1,0 +1,97 @@
+<form [formGroup]='eF' (ngSubmit)="sendData()">
+  <label for="nombre">Nombre del evento:</label>
+  <input type="text" id="nombre" formControlName="nombre"><br>
+
+  <label for="descripcion">Descripción:</label>
+  <textarea id="descripcion" formControlName="descripcion"></textarea><br>
+
+  <label for="n_asientos">Número de asientos:</label>
+  <input type="number" id="n_asientos" formControlName="n_asientos" min="1"><br>
+
+  <label for="num_grupos">Número de grupos:</label>
+  <input type="number" id="num_grupos" formControlName="num_grupos" min="1"><br>
+
+  <label for="precio">Precio del evento:</label>
+  <input type="number" id="precio" formControlName="precio" step="0.01" min="0.01"><br>
+
+  <label for="fecha_ini">Fecha de inicio:</label>
+  <input type="date" id="fecha_ini" formControlName="fecha_ini"><br>
+  <label for="fecha_fin">Fecha de fin:</label>
+  <input type="date" id="fecha_fin" formControlName="fecha_fin"><br>
+  <label for="tipo">Tipo de evento:</label>
+  <select id="tipo" formControlName="tipo">
+    <option value="Viaje">Viaje</option>
+    <option value="Comida">Comida</option>
+    <option value="Otro">Otro</option>
+  </select><br>
+  <button type="submit" *ngIf="evento" (click)="updateEvento()">Actualizar</button>
+  <button type="submit" *ngIf="!evento" (click)="addEvento()">Añadir</button>
+</form>
+
+<h3>Asientos relacionados</h3>
+@if (asientos$ | async; as asientos) {
+  @if (asientos.length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>Número de asiento</th>
+          <th>Fecha</th>
+          <th>Grupo</th>
+          <th>Socio</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (asiento of asientos; track trackByAttributes) {
+          <tr>
+            <td>{{ asiento.n_asiento }}</td>
+            <td>{{ asiento.fecha }}</td>
+            <td>{{ asiento.n_grupo }}</td>
+            <td>{{ asiento.n_socio || 'N/A' }}</td>
+            <td>
+              <button *ngIf="asiento.n_socio !== null" (click)="vaciarAsiento(asiento.n_grupo, asiento.n_asiento)">
+                Vaciar
+              </button>
+              <button *ngIf="asiento.n_socio === null" (click)="asignarAsiento(asiento.n_grupo, asiento.n_asiento)">
+                Asignar
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>No hay asientos relacionados.</p>
+  }
+}
+
+<h3>Agregar a la lista de espera</h3>
+<form [formGroup]='listaF' (ngSubmit)="agregarListaEspera()">
+  <label for="n_socio">Número de socio:</label>
+  <input type="number" id="n_socio" formControlName="n_socio" name="n_socio" required>
+  <button type="submit">Agregar</button>
+</form>
+
+<h3>Lista de espera</h3>
+@if (listaEspera$ | async; as listaEspera) {
+  @if (listaEspera.length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>Socio</th>
+          <th>Fecha de inscripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of listaEspera; track trackByAttributes) {
+          <tr>
+            <td>{{ item.socio }}</td>
+            <td>{{ item.fecha_inscripcion }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>No hay usuarios en la lista de espera.</p>
+  }
+}

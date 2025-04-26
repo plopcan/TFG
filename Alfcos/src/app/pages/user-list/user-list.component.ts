@@ -15,7 +15,7 @@ import { SocioService } from '../../core/services/socio.service';
 @Component({
   selector: 'app-usuario',
   standalone: true,
-  imports: [AsyncPipe, ErrorMessageComponent, NgFor, CommonModule, ReactiveFormsModule],
+  imports: [AsyncPipe, ErrorMessageComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css'
 })
@@ -32,7 +32,6 @@ export class UserListComponent {
   newUserForm: FormGroup
 
   constructor(private auth: AuthService, private router: Router, private Uservice: UsuarioService, private fb: FormBuilder
-    , private Socioserv: SocioService
   ){
     this.oldUserForm = this.fb.group({
       user: ['', Validators.required],
@@ -86,69 +85,20 @@ export class UserListComponent {
       return this.auth.isLoggedIn;
     }
 
-    setSocio(dni:string, formName:String, event:Event){
-      event?.preventDefault();
-      if(formName == 'oldForm'){
-        this.oldUserForm.get('dni')?.setValue(dni);
-      }else{
-        this.newUserForm.get('dni')?.setValue(dni);
-      }
-      
-    }
-
-   /* searchSocio(event : any){
-      this.Socioserv.getSocio(event.target.value).subscribe(data => {this.socioList$ = data;});
-    }*/
-
-    getUser(user:string): void{
-      /*this.user = this.Uservice.getRegistredUser(user);*/
-      this.userList$.subscribe((usuarios:Usuario[])=>{
-        this.user = usuarios.find(usuario => usuario.nombre === user);
-      })
-      this.oldUserForm.patchValue({
-        nombre: this.user != null? this.user.nombre : '',
-        n_socio: this.user != null? this.user.n_socio : '',
-        rol: this.user != null? this.user.rol : ''
-      })
-    }
-
-    updateUser(){
-      this.oldUserForm.updateValueAndValidity()
-      this.submitted = true;
-      let info = this.oldUserForm.value;
-      console.log(info);
-      let success = this.Uservice.updateUser(info)
-      console.log(success);
+    updateUser(n_socio: string){
+      if (n_socio) {
         this.errorMessage = "";
-        if(this.rol == 'admin'){
-          this.userList$ = this.Uservice.getUserList().pipe(catchError((error:string)=>{
-            this.errorMessage = error;
+        this.Uservice.fetchAndStoreUser(n_socio);
+        console.log('Enviando socio:', n_socio);
+      } else {
+        this.errorMessage = "No se ha encontrado el socio";
+      }
+  }
     
-            return EMPTY;
-          })) ;
-        }else{
-          this.Uservice.getRegistredUser(sessionStorage.getItem("user")).subscribe(user => {
-            this.user = user;
-          });
-        }
-    }
 
     addUser(){
-      this.submitted = true;
-      let info = this.newUserForm.value;
-      console.log(info);
-      let success = this.Uservice.addUser(info)
-      console.log(success);
-      if(success == 'success'){
-        this.errorMessage = "";
-        this.userList$ = this.Uservice.getUserList().pipe(catchError((error:string)=>{
-          this.errorMessage = error;
-  
-          return EMPTY;
-        })) ;
-      }else{
-        this.errorMessage = "error al añadir el usuario";
-      }
+      this.Uservice.clearUser();
+      this.router.navigate(['/usuarioForm']);
     }
 
     onReset(): void {
@@ -162,17 +112,31 @@ export class UserListComponent {
 
   delete(id:string){
     this.submitted = true;
-    let success = this.Uservice.deleteUser(id)
-    console.log(success);
-    if(success == 'success'){
-      this.errorMessage = "";
-      this.userList$ = this.Uservice.getUserList().pipe(catchError((error:string)=>{
-        this.errorMessage = error;
-
-        return EMPTY;
-      })) ;
-    }else{
-      this.errorMessage = "error al añadir el usuario";
-    }
+    let success = this.Uservice.deleteUsuario(id).subscribe(
+      () => {
+        console.log('Socio eliminado');
+        this.userList$ = this.Uservice.getUserList().pipe(
+          catchError((error: string) => {
+            this.errorMessage = error;
+            return EMPTY;
+          })
+        );
+      },
+      (error) => {
+        console.error('Error al eliminar el socio:', error);
+        this.errorMessage = "Error al eliminar el socio";
+      }
+    );
   }
+
+  
+  getUser(n_socio: string): void {
+    if (n_socio) {
+      this.errorMessage = "";
+      this.Uservice.fetchAndStoreUser(n_socio);
+      console.log('Enviando socio:', n_socio);
+    } else {
+      this.errorMessage = "No se ha encontrado el socio";
+    }
+}
 }

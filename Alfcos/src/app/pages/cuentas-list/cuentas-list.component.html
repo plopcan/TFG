@@ -1,0 +1,37 @@
+@if (cuentasList$ | async; as list) {
+    <button (click)="descargar()">Descargar</button><br><br>
+    <table>
+        <thead>
+            <tr>
+               <th>ID</th> 
+               <th>Descripción</th> 
+               <th>Cantidad</th> 
+               <th>Fecha</th> 
+               <th>Tipo</th> 
+               <th>Anulada</th>
+               <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for(item of list; track item.id_cuenta) {
+        <tr> 
+            <td>{{item.id_cuenta}}</td>
+            <td>{{item.descripcion}}</td>
+            <td>{{item.cantidad}}</td>
+            <td>{{item.fecha}}</td>
+            <td>{{item.tipo}}</td>
+            <td>{{item.anulada}}</td>
+            <td>
+                <button (click)="getCuenta(item.id_cuenta, item.tipo)">Seleccionar</button><br>
+                <button (click)="anularCuenta(item.id_cuenta)">Anular</button>
+            </td>
+        </tr>
+        }
+        </tbody>
+    </table><br>
+
+    <button (click)="addCuenta()">Añadir Cuenta</button>
+}
+@if(errorMessage) {
+    <app-error-message [errorMessage]="errorMessage"/>
+}

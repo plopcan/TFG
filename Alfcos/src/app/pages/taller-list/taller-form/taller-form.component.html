@@ -1,0 +1,76 @@
+<form [formGroup]='tF' (ngSubmit)="sendData()">
+  <label for="nombre">Nombre del taller:</label>
+  <input type="text" id="nombre" formControlName="nombre"><br>
+
+  <label for="descripcion">Descripción:</label>
+  <textarea id="descripcion" formControlName="descripcion"></textarea><br>
+
+  <label for="monitor">Monitor:</label>
+  <input type="text" id="monitor" formControlName="monitor"><br>
+
+  <label for="hora_inicio">Hora de inicio:</label>
+  <input type="time" id="hora_inicio" formControlName="hora_inicio"><br>
+
+  <label for="hora_fin">Hora de fin:</label>
+  <input type="time" id="hora_fin" formControlName="hora_fin"><br>
+
+  <label for="plazas">Plazas:</label>
+  <input type="number" id="plazas" formControlName="plazas"><br>
+  <label for="dias">Días:</label>
+  <div id="dias">
+    <label>
+      <input type="checkbox" formControlName="Lunes"> Lunes
+    </label>
+    <label>
+      <input type="checkbox" formControlName="Martes"> Martes
+    </label>
+    <label>
+      <input type="checkbox" formControlName="Miercoles"> Miércoles
+    </label>
+    <label>
+      <input type="checkbox" formControlName="Jueves"> Jueves
+    </label>
+    <label>
+      <input type="checkbox" formControlName="Viernes"> Viernes
+    </label>
+  </div><br>
+
+  <button type="submit">{{ taller ? 'Actualizar' : 'Añadir' }}</button>
+</form>
+
+<h3>Inscribir Socio</h3>
+<form [formGroup]="inscribir" (ngSubmit)="inscribirSocio()">
+  <label for="n_socio">Número de Socio:</label>
+  <input type="number" id="n_socio" formControlName="n_socio" required>
+  <button type="submit">Inscribir</button>
+</form>
+
+<h3>Socios</h3>
+@if (socios$ | async; as socios) {
+  @if (socios.length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Fecha de inscripción</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of socios; track trackByAttributes) {
+          <tr>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellidos }}</td>
+            <td>{{ item.fecha }}</td>
+            <td>
+              <button (click)="quitarSocio(item.nombre, item.apellidos)">Eliminar</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>No hay usuarios inscritos en este taller.</p>
+  }
+}

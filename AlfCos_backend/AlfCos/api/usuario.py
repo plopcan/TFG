@@ -14,15 +14,11 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     def buscar_usuario(self, request):
         nombre = request.query_params.get('nombre')
         password = request.query_params.get('password')
-        
-        print(nombre)
-        print(password)
-        usuario = Usuario.objects.get(nombre=nombre)
-        print(usuario.password)
+
         if nombre is not None and password is not None:
             try:
                 usuario = Usuario.objects.get(nombre=nombre)
-                if password == usuario.password:
+                if check_password(password, usuario.password):  # Verifica la contraseña
                     serializer = UsuarioSerializer(usuario)
                     return Response(serializer.data)
                 else:
@@ -34,7 +30,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         
     @action(detail=False, methods=['post'], url_path='buscarRegistrado')
     def buscar_Registrado(self, request):
-        n_socio = request.query_params.get('nombre')
+        n_socio = request.data.get('n_socio')
         
         usuario = Usuario.objects.get(n_socio=n_socio)
         if n_socio is not None:

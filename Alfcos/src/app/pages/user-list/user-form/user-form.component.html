@@ -1,0 +1,29 @@
+@if(this.isloged()){
+<form [formGroup]="uF" (ngSubmit) = "sendData()">
+    <label for="n_socio">Identificador del usuario: </label>
+   <!-- <input type="text" formControlName="dni" id="dni"  (keyup)="searchSocio($event)"/>
+    @if(socioList$.length > 0){
+        @for (socio of socioList$; track socio.dni) {
+        <ul>
+            <li>
+                <button type="button" (click)="setSocio(socio.dni, 'newForm', $event)">{{socio.dni}}<br/>{{socio.nombre}} {{socio.apellidos}}</button>
+            </li>
+        </ul>
+    }}<br/>-->
+    <input type="text" formControlName="n_socio" id="n_socio"  [readonly]="full === false"/><br/>
+    <label for="nombre">Nombre clave del usuario:</label>
+    <input type="text" formControlName="nombre" id="nombre"/><br/>
+    <label for="rol">Rol del usuario:</label>
+    <input type="text" formControlName="rol" id="rol"  [readonly]="full === false"/><br/>
+    <label for="password">Nueva contraseña:</label>
+    <input type="password" formControlName="password" id="new"/><br/>
+    <label for="Npassword">Confirmar nueva contraseña:</label>
+    <input type="Npassword" formControlName="new_psw_confirm" id="confirm"/><br/>
+    <button type="submit">Añadir</button>
+    @if(submitted && uF.controls['new_psw_confirm'].errors){
+    @if(uF.controls['new_psw_confirm'].errors['matching']){
+        <div>Confirm Password does not match</div>
+    }
+    }
+</form>
+}

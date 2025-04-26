@@ -22,7 +22,7 @@ export class SocioService {
     const password = 'admin';
     const auth = btoa(`${username}:${password}`);
     return new HttpHeaders({
-      'Authorization': `Basic ${auth}`
+        'Authorization': `Basic ${auth}`
     });
   }
 
@@ -33,9 +33,13 @@ export class SocioService {
   }
 
   getSocio(n_socio: string | null): Observable<Socio> {
-    const url = `${environment.urlDjango}/api/socios/filtrar/?n_socio=${n_socio}`;
-    console.log('Enviando solicitud a:', url);
-    return this.http.get<Socio[]>(url, { headers: this.getAuthHeaders() }).pipe(
+    const url = `${environment.urlDjango}/api/socios/filtrar/`;
+    
+    const body = { n_socio : n_socio };  // Envía los datos en el body
+    console.log(body);
+    const headers = this.getAuthHeaders();  // Asegúrate de que sean correctos
+
+    return this.http.post<Socio[]>(url, body, { headers }).pipe(
       map(socios => socios[0])  // Tomar el primer elemento del array
     );
   }
@@ -53,30 +57,35 @@ export class SocioService {
     );
   }
 
-  updateSocio(socioInfo: any): string {
-    this.http.post<string>(`${environment.urlFlask}socio/updateSocio`, socioInfo).subscribe(
-      (response) => {
-        this.success = response;
-      },
-      (error) => {
-        console.error('Error al actualizar el socio:', error);
-      });
-    return this.success;
+  updateSocio(socioInfo: any, n_socio: number | undefined): Observable<string> {
+    const url = `${environment.urlDjango}/api/socios/${n_socio}/`;
+    return this.http.put<string>(url, socioInfo, { headers: this.getAuthHeaders() }).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  addSocio(socioInfo: any): string {
-    this.http.post<string>(`${environment.urlFlask}socio/addSocio`, socioInfo).subscribe(
-      (response) => {
-        this.success = response;
-      },
-      (error) => {
-        console.error('Error al crear el socio:', error);
-      });
-    return this.success;
+  addSocio(socioInfo: any): Observable<string> {
+    const url = `${environment.urlDjango}/api/socios/`;
+  
+    const formData = new FormData();
+    for (const key in socioInfo) {
+      if (socioInfo.hasOwnProperty(key) && socioInfo[key] !== undefined && socioInfo[key] !== null) {
+        if (key === 'foto' && socioInfo[key]) {
+          formData.append('foto', socioInfo[key], socioInfo[key].name);
+        } else if (key !== 'foto') {
+          formData.append(key, socioInfo[key]);
+        }
+      }
+    }
+  
+    return this.http.post<string>(url, formData, { headers: this.getAuthHeaders() }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   deleteSocio(id: number): Observable<any> {
-    return this.http.delete(`${environment.urlFlask}socio/deleteSocio/${id}`).pipe(
+    const url = `${environment.urlDjango}/api/socios/${id}/`;
+    return this.http.delete(url, { headers: this.getAuthHeaders() }).pipe(
       catchError(this.handleError)
     );
   }
@@ -84,5 +93,9 @@ export class SocioService {
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred:', error);
     return throwError(() => new Error('Something bad happened; please try again later.'));
+  }
+  
+  clear(): void {
+    this.socioSubject.next(undefined);
   }
 }
