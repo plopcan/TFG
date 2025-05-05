@@ -6,6 +6,6 @@ export interface Taller {
     hora_inicio: string;
     hora_fin: string;
     plazas: number;
-    plazasLibres: number;
+    plazas_libres: number;
     dia: string[]; 
 }

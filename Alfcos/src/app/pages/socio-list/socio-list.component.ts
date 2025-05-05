@@ -14,20 +14,42 @@ import { Router } from '@angular/router';
   styleUrl: './socio-list.component.css'
 })
 export class SocioListComponent implements OnInit {
-  public socioList$!: Observable<Socio[]>;
+  public socioList$!: Observable<any>;
   public errorMessage!: string;
   public socio$ = new BehaviorSubject<Socio | undefined>(undefined);
   showForm = false;
 
+  // Pagination properties
+  currentPage = 1;
+  hasNextPage = true;
+
   constructor(private service: SocioService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
-    this.socioList$ = this.service.getSocioList().pipe(
+    this.loadPage(this.currentPage);
+  }
+
+  loadPage(page: number): void {
+    this.socioList$ = this.service.getSocioListPaginated(page).pipe(
       catchError((error: string) => {
         this.errorMessage = error;
         return EMPTY;
       })
     );
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPage(this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.currentPage++;
+      this.loadPage(this.currentPage);
+    }
   }
 
   getSocio(n_socio: number): void {
@@ -48,12 +70,7 @@ export class SocioListComponent implements OnInit {
     this.service.deleteSocio(n_socio).subscribe(
       () => {
         console.log('Socio eliminado');
-        this.socioList$ = this.service.getSocioList().pipe(
-          catchError((error: string) => {
-            this.errorMessage = error;
-            return EMPTY;
-          })
-        );
+        this.loadPage(this.currentPage);
       },
       (error) => {
         console.error('Error al eliminar el socio:', error);

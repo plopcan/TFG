@@ -6,6 +6,7 @@ export interface Evento {
     fecha_fin: Date;
     num_grupos: number;
     precio: number;
-    tipo: string; // Assuming tipo is represented by its ID
+    tipo: string;
+    tipo_id: string;
     plazasLibres: number;
 }

@@ -1,36 +1,50 @@
-@if (cuentasList$ | async; as list) {
-    <button (click)="descargar()">Descargar</button><br><br>
-    <table>
-        <thead>
-            <tr>
-               <th>ID</th> 
-               <th>Descripción</th> 
-               <th>Cantidad</th> 
-               <th>Fecha</th> 
-               <th>Tipo</th> 
-               <th>Anulada</th>
-               <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-        @for(item of list; track item.id_cuenta) {
-        <tr> 
-            <td>{{item.id_cuenta}}</td>
-            <td>{{item.descripcion}}</td>
-            <td>{{item.cantidad}}</td>
-            <td>{{item.fecha}}</td>
-            <td>{{item.tipo}}</td>
-            <td>{{item.anulada}}</td>
-            <td>
-                <button (click)="getCuenta(item.id_cuenta, item.tipo)">Seleccionar</button><br>
-                <button (click)="anularCuenta(item.id_cuenta)">Anular</button>
-            </td>
+@if (cuentasList$ | async; as response) {
+  <button class="btn btn-primary" (click)="descargar()">Descargar</button>
+  <br><br>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th> 
+        <th>Descripción</th> 
+        <th>Cantidad</th> 
+        <th>Fecha</th> 
+        <th>Tipo</th> 
+        <th>Anulada</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of response.results; track item.id_cuenta) {
+        <tr>
+          <td>{{ item.id_cuenta }}</td>
+          <td>{{ item.descripcion }}</td>
+          <td>{{ item.cantidad }}</td>
+          <td>{{ item.fecha }}</td>
+          <td>{{ item.tipo }}</td>
+          <td>{{ item.anulada ? 'Sí' : 'No' }}</td>
+          <td>
+            <button class="btn btn-info btn-sm" (click)="getCuenta(item.id_cuenta, item.tipo)">
+              Seleccionar
+            </button>
+            <br>
+            <button class="btn btn-dark btn-sm mt-1" (click)="anularCuenta(item.id_cuenta)">
+              Anular
+            </button>
+          </td>
         </tr>
-        }
-        </tbody>
-    </table><br>
+      }
+    </tbody>
+  </table>
+  
+    <!-- Pagination controls -->
+    <div class="pagination-controls">
+        <button class="btn btn-secondary" (click)="previousPage()" [disabled]="currentPage === 1">←</button>
+        <input type="number" value="{{currentPage}}" class="page-input" readonly>
+        <button class="btn btn-secondary" (click)="nextPage()" [disabled]="!hasNextPage">→</button>
+    </div><br>
 
-    <button (click)="addCuenta()">Añadir Cuenta</button>
+    <button class="btn btn-success" (click)="addCuenta()">Añadir Cuenta</button>
 }
 @if(errorMessage) {
     <app-error-message [errorMessage]="errorMessage"/>

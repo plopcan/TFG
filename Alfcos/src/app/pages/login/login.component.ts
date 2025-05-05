@@ -45,6 +45,7 @@ export class LoginComponent {
                 this.errorText = "";
                 sessionStorage.setItem("nombre", this.usuario.nombre);
                 sessionStorage.setItem("rol", this.usuario.rol);
+                sessionStorage.setItem("n_socio", this.usuario.n_socio);
                 this.authService.login();
                 this.router.navigate(['/socios']);
               } else {

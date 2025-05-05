@@ -1,27 +1,27 @@
-<div *ngIf="cuenta">
-  <h3>Cuenta Details</h3>
-  <p>ID: {{ cuenta.id_cuenta }}</p>
-  <p>Description: {{ cuenta.descripcion }}</p>
-  <p>Amount: {{ cuenta.cantidad }}</p>
-  <p>Date: {{ cuenta.fecha }}</p>
-  <p>Type: {{ cuenta.tipo }}</p>
-  <p>Anulada: {{ cuenta.anulada }}</p>
+<div *ngIf="cuenta" class="card mb-3 p-3">
+  <h3 class="card-title text-primary">Cuenta Details</h3>
+  <p class="fs-5">ID: {{ cuenta.id_cuenta }}</p>
+  <p class="fs-5">Description: {{ cuenta.descripcion }}</p>
+  <p class="fs-5">Amount: {{ cuenta.cantidad }}</p>
+  <p class="fs-5">Date: {{ cuenta.fecha }}</p>
+  <p class="fs-5">Type: {{ cuenta.tipo }}</p>
+  <p class="fs-5">Anulada: {{ cuenta.anulada }}</p>
 </div>
 
-<div *ngIf="cuota">
-  <h3>Cuota Details</h3>
-  <p>ID: {{ cuota.id_cuenta }}</p>
-  <p>Description: {{ cuota.descripcion }}</p>
-  <p>Amount: {{ cuota.cantidad }}</p>
-  <p>Date: {{ cuota.fecha }}</p>
-  <p>Socio ID: {{ cuota.n_socio }}</p>
+<div *ngIf="cuota" class="card mb-3 p-3">
+  <h3 class="card-title text-primary">Cuota Details</h3>
+  <p class="fs-5">ID: {{ cuota.id_cuenta }}</p>
+  <p class="fs-5">Description: {{ cuota.descripcion }}</p>
+  <p class="fs-5">Amount: {{ cuota.cantidad }}</p>
+  <p class="fs-5">Date: {{ cuota.fecha }}</p>
+  <p class="fs-5">Socio ID: {{ cuota.n_socio }}</p>
 </div>
 
-<div *ngIf="cuentaEvento">
-  <h3>Cuenta Evento Details</h3>
-  <p>ID: {{ cuentaEvento.id_cuenta }}</p>
-  <p>Description: {{ cuentaEvento.descripcion }}</p>
-  <p>Amount: {{ cuentaEvento.cantidad }}</p>
-  <p>Date: {{ cuentaEvento.fecha }}</p>
-  <p>Event ID: {{ cuentaEvento.eventoId }}</p>
+<div *ngIf="cuentaEvento" class="card mb-3 p-3">
+  <h3 class="card-title text-primary">Cuenta Evento Details</h3>
+  <p class="fs-5">ID: {{ cuentaEvento.id_cuenta }}</p>
+  <p class="fs-5">Description: {{ cuentaEvento.descripcion }}</p>
+  <p class="fs-5">Amount: {{ cuentaEvento.cantidad }}</p>
+  <p class="fs-5">Date: {{ cuentaEvento.fecha }}</p>
+  <p class="fs-5">Event ID: {{ cuentaEvento.eventoId }}</p>
 </div>

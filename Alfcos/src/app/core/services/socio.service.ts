@@ -18,8 +18,8 @@ export class SocioService {
   constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const username = 'pilar';
-    const password = 'admin';
+    const username = environment.userName;
+    const password = environment.password;
     const auth = btoa(`${username}:${password}`);
     return new HttpHeaders({
         'Authorization': `Basic ${auth}`
@@ -30,6 +30,20 @@ export class SocioService {
     const url = `${environment.urlDjango}/api/socios/`;
     console.log('Enviando solicitud a:', url);
     return this.http.get<Socio[]>(url, { headers: this.getAuthHeaders() });
+  }
+
+  getSocioListPaginated(page: number = 1, pageSize: number = 10): Observable<any> {
+    let params = new HttpParams()
+        .set('page', page.toString())
+        .set('page_size', pageSize.toString());
+    
+    const url = `${environment.urlDjango}/api/socios/paginar/`;
+    console.log('Enviando solicitud a:', url, 'con parámetros:', params.toString());
+    
+    return this.http.get<any>(url, { 
+        headers: this.getAuthHeaders(),
+        params: params
+    });
   }
 
   getSocio(n_socio: string | null): Observable<Socio> {

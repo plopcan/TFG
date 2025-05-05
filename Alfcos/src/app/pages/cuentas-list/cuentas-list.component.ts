@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CuentasService } from '../../core/services/cuentas.service';
-import { catchError, EMPTY, Observable, BehaviorSubject } from 'rxjs';
+import { catchError, EMPTY, Observable, BehaviorSubject, map, tap } from 'rxjs';
 import { Cuentas } from '../../interfaces/cuentas';
 import { ErrorMessageComponent } from "../../components/error-message/error-message.component";
 import { Router } from '@angular/router';
@@ -14,20 +14,39 @@ import { Router } from '@angular/router';
   styleUrl: './cuentas-list.component.css'
 })
 export class CuentasListComponent implements OnInit {
-  public cuentasList$!: Observable<Cuentas[]>;
+  public cuentasList$!: Observable<any>;
   public errorMessage!: string;
   public cuenta$ = new BehaviorSubject<Cuentas | undefined>(undefined);
   showForm = false;
 
+  // Pagination properties
+  currentPage = 1;
+  hasNextPage = true;
+
   constructor(private service: CuentasService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
-    this.cuentasList$ = this.service.getCuentasList().pipe(
-      catchError((error: string) => {
-        this.errorMessage = error;
-        return EMPTY;
-      })
+    this.loadPage(this.currentPage);
+  }
+
+  loadPage(page: number): void {
+    this.cuentasList$ = this.service.getCuentasList(page).pipe(
+      tap(response => console.log('Respuesta del API:', response))
     );
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPage(this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.currentPage++;
+      this.loadPage(this.currentPage);
+    }
   }
 
   getCuenta(id_cuenta: number, tipo:string): void {
@@ -49,12 +68,7 @@ export class CuentasListComponent implements OnInit {
     this.service.deleteCuentas(id_cuenta).subscribe(
       () => {
         console.log('Cuenta eliminada');
-        this.cuentasList$ = this.service.getCuentasList().pipe(
-          catchError((error: string) => {
-            this.errorMessage = error;
-            return EMPTY;
-          })
-        );
+        this.loadPage(this.currentPage);
       },
       (error) => {
         console.error('Error al eliminar la cuenta:', error);
@@ -67,12 +81,7 @@ export class CuentasListComponent implements OnInit {
     this.service.anularCuenta(id_cuenta).subscribe(
       () => {
         console.log('Cuenta anulada');
-        this.cuentasList$ = this.service.getCuentasList().pipe(
-          catchError((error: string) => {
-            this.errorMessage = error;
-            return EMPTY;
-          })
-        );
+        this.loadPage(this.currentPage);
       },
       (error) => {
         console.error('Error al anular la cuenta:', error);

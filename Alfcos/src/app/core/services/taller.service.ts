@@ -18,8 +18,8 @@ export class TallerService {
   constructor(private http: HttpClient, private router: Router) { }
   
   private getAuthHeaders(): HttpHeaders {
-    const username = 'pilar';
-    const password = 'admin';
+    const username = environment.userName;
+    const password = environment.password;
     const auth = btoa(`${username}:${password}`);
     return new HttpHeaders({
       'Authorization': `Basic ${auth}`
@@ -41,6 +41,40 @@ export class TallerService {
 
     return this.http.post<Taller[]>(url, body, { headers }).pipe(
       map(taller => taller[0])  // Tomar el primer elemento del array
+    );
+  }
+
+  getTallerListPaginated(page: number = 1, pageSize: number = 10): Observable<any> {
+    let params = new HttpParams()
+        .set('page', page.toString())
+        .set('page_size', pageSize.toString());
+    
+    const url = `${environment.urlDjango}/api/talleres/paginar/`;
+    console.log('Enviando solicitud a:', url, 'con parámetros:', params.toString());
+    
+    return this.http.get<any>(url, { 
+        headers: this.getAuthHeaders(),
+        params: params
+    });
+  }
+
+  getClasesPaginated(id_taller: number, page: number = 1, pageSize: number = 10): Observable<any> {
+    let params = new HttpParams()
+        .set('id_taller', id_taller.toString())
+        .set('page', page.toString())
+        .set('page_size', pageSize.toString());
+    
+    const url = `${environment.urlDjango}/api/talleres/paginar-clases/`;
+    console.log('Enviando solicitud a:', url, 'con parámetros:', params.toString());
+    
+    return this.http.get<any>(url, { 
+        headers: this.getAuthHeaders(),
+        params: params
+    }).pipe(
+      catchError((error) => {
+        console.error('Error al obtener las clases paginadas:', error);
+        return throwError(() => new Error('Error al obtener las clases paginadas'));
+      })
     );
   }
 

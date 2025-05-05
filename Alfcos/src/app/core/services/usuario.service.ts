@@ -17,8 +17,8 @@ export class UsuarioService {
   constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {
-      const username = 'pilar';
-      const password = 'admin';
+    const username = environment.userName;
+    const password = environment.password;
       const auth = btoa(`${username}:${password}`);
       return new HttpHeaders({
         'Authorization': `Basic ${auth}`

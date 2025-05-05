@@ -14,16 +14,23 @@ import { ErrorMessageComponent } from '../../components/error-message/error-mess
   styleUrls: ['./taller-list.component.css']
 })
 export class TallerListComponent implements OnInit {
-  public tallerList$!: Observable<Taller[]>;
+  public tallerList$!: Observable<any>;
   public errorMessage!: string;
   public taller$ = new BehaviorSubject<Taller | undefined>(undefined);
   showForm = false;
 
+  // Pagination properties
+  currentPage = 1;
+  hasNextPage = true;
+
   constructor(private service: TallerService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
-    this.tallerList$ = this.service.getTallerList().pipe(
-      tap((talleres) => console.log('Talleres:', talleres)),
+    this.loadPage(this.currentPage);
+  }
+
+  loadPage(page: number): void {
+    this.tallerList$ = this.service.getTallerListPaginated(page).pipe(
       catchError((error: string) => {
         this.errorMessage = error;
         return EMPTY;
@@ -47,19 +54,29 @@ export class TallerListComponent implements OnInit {
     this.router.navigate(['/tallerForm']);
   }
 
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPage(this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.currentPage++;
+      this.loadPage(this.currentPage);
+    }
+  }
+
   deleteTaller(id_taller: number): void {
     this.service.deleteTaller(id_taller).subscribe(
       () => {
         console.log('Taller eliminado');
-        this.tallerList$ = this.service.getTallerList().pipe(
-          catchError((error: string) => {
-            this.errorMessage = error;
-            return EMPTY;
-          })
-        );
+        this.loadPage(this.currentPage);
       },
       (error) => {
         console.error('Error al eliminar el taller:', error);
+        this.errorMessage = "Error al eliminar el taller";
       }
     );
   }

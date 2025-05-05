@@ -3,9 +3,8 @@
     <h1>AlfCos</h1>
     @if(isloged()){
       <nav>
-          <button class="lead" (click)="navigateTo('/')">Inicio</button>
           <button class="lead" (click)="navigateTo('/socios')">Socios</button>
-          <button class="lead" (click)="navigateTo('/usuarios')">Usuarios</button>
+          <button class="lead" (click)="getUser()">Usuarios</button>
           <button class="lead" (click)="navigateTo('/talleres')">Talleres</button>
           <button class="lead" (click)="navigateTo('/eventos')">Eventos</button>
           <button class="lead" (click)="navigateTo('/cuentas')">Cuentas</button>
@@ -18,6 +17,6 @@
   <footer>
     <h3>AlfCos</h3>
     <p></p>
-    <button type="button" class="btn btn-danger">Logout</button>
+    <button type="button" class="btn btn-danger" (click)="logout()">Logout</button>
   </footer>
 </div>

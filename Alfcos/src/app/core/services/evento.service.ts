@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
@@ -29,8 +29,8 @@ export class EventoService {
   constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const username = 'pilar';
-    const password = 'admin';
+    const username = environment.userName;
+    const password = environment.password;
     const auth = btoa(`${username}:${password}`);
     return new HttpHeaders({
       'Authorization': `Basic ${auth}`
@@ -157,6 +157,20 @@ export class EventoService {
       return this.http.post(url, body, { headers: this.getAuthHeaders() }).pipe(
         catchError(this.handleError)
       );
+    }
+
+    getEventoListPaginated(page: number = 1, pageSize: number = 10): Observable<any> {
+      let params = new HttpParams()
+          .set('page', page.toString())
+          .set('page_size', pageSize.toString());
+      
+      const url = `${environment.urlDjango}/api/eventos/paginar/`;
+      console.log('Enviando solicitud a:', url, 'con parámetros:', params.toString());
+      
+      return this.http.get<any>(url, { 
+          headers: this.getAuthHeaders(),
+          params: params
+      });
     }
 
     clear(): void {

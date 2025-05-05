@@ -19,7 +19,11 @@ export class TallerFormComponent implements OnInit {
   public tF!: FormGroup;
   public inscribir!: FormGroup;
   errorMessage!: string;
-  socios$: Observable<Clase[]> | undefined;
+  socios$: Observable<any> | undefined;
+
+  // Pagination properties for classes
+  currentPage = 1;
+  hasNextPage = true;
 
   constructor(private fb: FormBuilder, private tallerServ: TallerService, private cdr: ChangeDetectorRef, private router: Router) {}
 
@@ -43,12 +47,13 @@ export class TallerFormComponent implements OnInit {
         Viernes: [this.taller?.dia?.includes('Viernes') || false]
       });
 
+      if (this.taller) {
+        this.fetchSociosPaginated(this.taller.n_taller, this.currentPage); // Ensure socios are fetched
+      }
+
       this.cdr.markForCheck();
     });
 
-    if (this.taller) {
-      this.fetchSocios(this.taller.n_taller);
-    }
     this.inscribir = this.fb.group({
       n_socio: [null, Validators.required],
     });
@@ -61,6 +66,36 @@ export class TallerFormComponent implements OnInit {
               return EMPTY;
             })
     );
+  }
+
+  fetchSociosPaginated(id_taller: number, page: number): void {
+    if (!id_taller) {
+      console.error('El ID del taller es inválido.');
+      this.errorMessage = 'No se pudo cargar la lista de socios.';
+      return;
+    }
+
+    this.socios$ = this.tallerServ.getClasesPaginated(id_taller, page).pipe(
+      catchError((error: string) => {
+        this.errorMessage = `Error al obtener la lista de clases: ${error}`;
+        console.error(this.errorMessage);
+        return EMPTY;
+      })
+    );
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchSociosPaginated(this.taller!.n_taller, this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.currentPage++;
+      this.fetchSociosPaginated(this.taller!.n_taller, this.currentPage);
+    }
   }
 
   isDaySelected(day: string): boolean {

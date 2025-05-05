@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
 import { Cuentas } from '../../interfaces/cuentas';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.development';
 import { Cuota } from '../../interfaces/cuota';
@@ -18,17 +18,26 @@ export class CuentasService {
   constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const username = 'pilar';
-    const password = 'admin';
+    const username = environment.userName;
+    const password = environment.password;
     const auth = btoa(`${username}:${password}`);
     return new HttpHeaders({
       'Authorization': `Basic ${auth}`
     });
   }
-  getCuentasList(): Observable<Cuentas[]> {
-    const url = `${environment.urlDjango}/api/cuentas/`;
-    console.log('Enviando solicitud a:', url);
-    return this.http.get<Cuentas[]>(url, { headers: this.getAuthHeaders() });
+  getCuentasList(page: number = 1, pageSize: number = 10): Observable<any> {
+    let params = new HttpParams()
+        .set('page', page.toString())
+        .set('page_size', pageSize.toString());
+    
+    
+    const url = `${environment.urlDjango}/api/cuentas/paginar/`;
+    console.log('Enviando solicitud a:', url, 'con parámetros:', params.toString());
+    
+    return this.http.get<any>(url, { 
+        headers: this.getAuthHeaders(),
+        params: params
+    });
   }
 
   getCuentas(id_cuenta: string | null, tipo: string): Observable<Cuentas | Cuota | CuentaEvento> {

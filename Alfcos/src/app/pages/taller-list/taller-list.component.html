@@ -1,4 +1,4 @@
-@if (tallerList$ | async; as list) {
+@if (tallerList$ | async; as response) {
     <table>
         <thead>
             <tr>
@@ -10,22 +10,29 @@
             </tr>
         </thead>
         <tbody>
-        @for(item of list; track item.n_taller) {
+        @for(item of response.results; track item.n_taller) {
         <tr> 
             <td>{{item.nombre}}</td>
             <td>{{item.hora_inicio}} - {{item.hora_fin}}</td>
             <td>{{item.dia}}</td>
-            <td>{{item.plazasLibres}}</td>
+            <td>{{item.plazas_libres}}</td>
             <td>
-                <button (click)="getTaller(item.n_taller)">Seleccionar</button><br>
-                <button (click)="deleteTaller(item.n_taller)">Eliminar</button>
+                <button class="btn btn-info btn-sm" (click)="getTaller(item.n_taller)">Seleccionar</button><br>
+                <button class="btn btn-dark btn-sm mt-1" (click)="deleteTaller(item.n_taller)">Eliminar</button>
             </td>
         </tr>
         }
         </tbody>
-    </table><br>
+    </table>
 
-    <button (click)="addTaller()">Añadir Taller</button>
+    <!-- Pagination controls -->
+    <div class="pagination-controls">
+        <button class="btn btn-secondary" (click)="previousPage()" [disabled]="currentPage === 1">←</button>
+        <input type="number" value="{{currentPage}}" class="page-input" readonly>
+        <button class="btn btn-secondary" (click)="nextPage()" [disabled]="!hasNextPage">→</button>
+    </div><br>
+
+    <button class="btn btn-success" (click)="addTaller()">Añadir Taller</button>
 }
 @if(errorMessage) {
     <app-error-message [errorMessage]="errorMessage"/>

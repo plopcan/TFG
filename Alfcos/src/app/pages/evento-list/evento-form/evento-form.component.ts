@@ -35,7 +35,7 @@ export class EventoFormComponent implements OnInit {
         precio: [this.evento?.precio || '', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
         fecha_ini: [this.evento?.fecha_ini || '', Validators.required],
         fecha_fin: [this.evento?.fecha_fin || '', Validators.required],
-        tipo: [this.evento?.tipo || '', Validators.required],
+        tipo_id: [this.evento?.tipo_id || '', Validators.required],
         n_asientos: [this.evento?.n_asientos || '', [Validators.required, Validators.min(0)]],
         num_grupos: [this.evento?.num_grupos || '', [Validators.required, Validators.min(0)]],
         descripcion: [this.evento?.descripcion || '', Validators.required]

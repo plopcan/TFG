@@ -14,15 +14,23 @@ import { ErrorMessageComponent } from '../../components/error-message/error-mess
   styleUrl: './evento-list.component.css'
 })
 export class EventoListComponent {
-public eventoList$!: Observable<Evento[]>;
+public eventoList$!: Observable<any>;
   public errorMessage!: string;
   public socio$ = new BehaviorSubject<Evento | undefined>(undefined);
   showForm = false;
 
+  // Pagination properties
+  currentPage = 1;
+  hasNextPage = true;
+
   constructor(private service: EventoService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
-    this.eventoList$ = this.service.getEventoList().pipe(
+    this.loadPage(this.currentPage);
+  }
+
+  loadPage(page: number): void {
+    this.eventoList$ = this.service.getEventoListPaginated(page).pipe(
       catchError((error: string) => {
         this.errorMessage = error;
         return EMPTY;
@@ -44,16 +52,26 @@ public eventoList$!: Observable<Evento[]>;
     this.service.clear();
     this.router.navigate(['/eventoForm']);
   }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPage(this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage) {
+      this.currentPage++;
+      this.loadPage(this.currentPage);
+    }
+  }
+
   deleteEvento(id_evento: number) {
     this.service.deleteEvento(id_evento).subscribe(
       () => {
         console.log('Socio eliminado');
-        this.eventoList$ = this.service.getEventoList().pipe(
-          catchError((error: string) => {
-            this.errorMessage = error;
-            return EMPTY;
-          })
-        );
+        this.loadPage(this.currentPage);
       },
       (error) => {
         console.error('Error al eliminar el socio:', error);
