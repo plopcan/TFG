@@ -12,6 +12,8 @@ from xhtml2pdf import pisa
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 class CuentaViewSet(viewsets.ModelViewSet):
+    page_size = 10  # Valor por defecto
+    page_size_query_param = 'page_size'
     queryset = Cuenta.objects.all()
     serializer_class = CuentaSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -131,15 +133,27 @@ class CuentaViewSet(viewsets.ModelViewSet):
             return Response({"detail": "La cuenta no existe."}, status=404)
         except CuentaEvento.DoesNotExist:
             return Response({"detail": "No se encontró una cuenta de evento asociada a esta cuenta."}, status=404)
-
     @action(detail=False, methods=['get'], url_path='paginar')
     def paginar_cuentas(self, request):
+        page_size = int(request.query_params.get('page_size', 10))
+        page_number = int(request.query_params.get('page', 1))
+        
         queryset = self.get_queryset()
-        paginator = PageNumberPagination()
-        paginator.page_size = 10  # Número de elementos por página
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = CuentaSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        total = queryset.count()
+        
+        # Aplica paginación manual
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        items = queryset[start:end]
+        
+        serializer = CuentaSerializer(items, many=True)
+        
+        return Response({
+            'count': total,
+            'next': f"?page={page_number + 1}&page_size={page_size}" if end < total else None,
+            'previous': f"?page={page_number - 1}&page_size={page_size}" if start > 0 else None,
+            'results': serializer.data
+        })
 
     @action(detail=False, methods=['get'], url_path='descargar_pdf')
     def descargar_pdf(self, request):

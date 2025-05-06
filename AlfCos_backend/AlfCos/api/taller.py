@@ -104,3 +104,56 @@ class TallerViewSet(viewsets.ModelViewSet):
                 'plazas_libres': plazas_libres
             })
         return Response(data)
+
+    @action(detail=False, methods=['get'], url_path='paginar')
+    def paginar_talleres(self, request):
+        page_size = int(request.query_params.get('page_size', 10))
+        page_number = int(request.query_params.get('page', 1))
+        
+        queryset = self.get_queryset()
+        total = queryset.count()
+        
+        # Aplica paginación manual
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        items = queryset[start:end]
+        
+        serializer = TallerSerializer(items, many=True)
+        
+        return Response({
+            'count': total,
+            'next': f"?page={page_number + 1}&page_size={page_size}" if end < total else None,
+            'previous': f"?page={page_number - 1}&page_size={page_size}" if start > 0 else None,
+            'results': serializer.data
+        })
+
+    @action(detail=False, methods=['get'], url_path='paginar-clases')
+    def paginar_clases(self, request):
+        id_taller = request.query_params.get('id_taller')
+        if not id_taller:
+            return Response({'status': 'id_taller es requerido'}, status=400)
+
+        try:
+            taller = Taller.objects.get(n_taller=id_taller)
+        except Taller.DoesNotExist:
+            return Response({'status': 'Taller no encontrado'}, status=404)
+
+        page_size = int(request.query_params.get('page_size', 10))
+        page_number = int(request.query_params.get('page', 1))
+
+        queryset = Clase.objects.filter(taller=taller)
+        total = queryset.count()
+
+        # Aplica paginación manual
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        items = queryset[start:end]
+
+        socios = [{'nombre': clase.socio.nombre, 'apellidos': clase.socio.apellido, 'fecha': f"{clase.fecha_inscripcion}"} for clase in items]
+
+        return Response({
+            'count': total,
+            'next': f"?page={page_number + 1}&page_size={page_size}" if end < total else None,
+            'previous': f"?page={page_number - 1}&page_size={page_size}" if start > 0 else None,
+            'results': socios
+        })

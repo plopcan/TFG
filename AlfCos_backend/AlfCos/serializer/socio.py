@@ -1,9 +1,22 @@
 from rest_framework import serializers
+from django.core.validators import FileExtensionValidator
 from ..models import *
 
 class SocioSerializer(serializers.ModelSerializer):
     sexo_id = serializers.IntegerField()  # Campo para aceptar el ID del sexo
     sexo = serializers.CharField(source='sexo.nombre', read_only=True)  # Campo de solo lectura para devolver el nombre del sexo
+    nombre = serializers.CharField(
+        trim_whitespace=True,  # Trim automático de espacios en blanco
+        required=True
+    )
+    telefono = serializers.CharField(
+        trim_whitespace=True,  # trim automático de espacios en blanco
+    )
+    foto = serializers.ImageField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
+        ]
+    )
 
     class Meta:
         model = Socio

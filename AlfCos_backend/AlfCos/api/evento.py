@@ -171,3 +171,25 @@ class EventoViewSet(viewsets.ModelViewSet):
             return Response({'lista_espera': lista_espera_data})
         except Exception as e:
             return Response({'status': 'error al obtener lista de espera', 'error': str(e)}, status=400)
+
+    @action(detail=False, methods=['get'], url_path='paginar')
+    def paginar_eventos(self, request):
+        page_size = int(request.query_params.get('page_size', 10))
+        page_number = int(request.query_params.get('page', 1))
+        
+        queryset = self.get_queryset()
+        total = queryset.count()
+        
+        # Aplica paginación manual
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        items = queryset[start:end]
+        
+        serializer = EventoSerializer(items, many=True)
+        
+        return Response({
+            'count': total,
+            'next': f"?page={page_number + 1}&page_size={page_size}" if end < total else None,
+            'previous': f"?page={page_number - 1}&page_size={page_size}" if start > 0 else None,
+            'results': serializer.data
+        })

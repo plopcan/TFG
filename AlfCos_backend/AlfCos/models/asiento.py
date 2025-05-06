@@ -6,7 +6,6 @@ from .evento import Evento
 
 # Create your models here.
 class Asiento(models.Model):
-    nombre = models.CharField(max_length=50)
     n_asiento = models.IntegerField()
     fecha = models.DateField(null=True, blank=True)
     n_grupo = models.IntegerField()
@@ -26,7 +25,6 @@ class Asiento(models.Model):
         for grupo in range(1, cantidad_grupos + 1):
             for asiento in range(1, asientos_por_grupo + 1):
                 Asiento.objects.create(
-                    nombre=f"Asiento {grupo}-{asiento}",
                     n_asiento=asiento,
                     n_grupo=grupo,
                     id_evento=evento
