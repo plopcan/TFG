@@ -39,3 +39,29 @@
     background-color: var(--mainButton-bg-color);
     color: white;
 }
+
+.btn-sm {
+    padding: 0.25em 0.5em;
+    font-size: 0.875rem;
+    border-radius: 3px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}

@@ -17,10 +17,10 @@ export class CuentasFormComponent {
   constructor(private fb: FormBuilder, private cuentasService: CuentasService, private router: Router) {
     this.cuentasForm = this.fb.group({
       descripcion: ['', Validators.required],
-      cantidad: [0, [Validators.required, Validators.min(0)]],
+      cantidad: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+\.?\d{0,2}$/)]],
       tipo_id: ['', Validators.required],
-      n_socio: [''], // Optional, shown conditionally
-      id_evento: [''] // Optional, shown conditionally
+      n_socio: [''], // Optional
+      id_evento: [''] // Optional
     });
   }
 

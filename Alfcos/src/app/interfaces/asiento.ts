@@ -1,5 +1,4 @@
 export interface Asiento {
-  nombre: string;
   n_asiento: number;
   fecha: string; // ISO string for the date
   n_grupo: number;

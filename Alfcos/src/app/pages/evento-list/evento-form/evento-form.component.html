@@ -61,7 +61,7 @@
           <th>Fecha</th>
           <th>Grupo</th>
           <th>Socio</th>
-          <th>Action</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -72,10 +72,10 @@
             <td>{{ asiento.n_grupo }}</td>
             <td>{{ asiento.n_socio || 'N/A' }}</td>
             <td>
-              <button *ngIf="asiento.n_socio !== null" (click)="vaciarAsiento(asiento.n_grupo, asiento.n_asiento)">
+              <button *ngIf="asiento.n_socio !== null" (click)="vaciarAsiento(asiento.n_grupo, asiento.n_asiento)" class="btn btn-dark btn-sm">
                 Vaciar
               </button>
-              <button *ngIf="asiento.n_socio === null" (click)="asignarAsiento(asiento.n_grupo, asiento.n_asiento)">
+              <button *ngIf="asiento.n_socio === null" (click)="asignarAsiento(asiento.n_grupo, asiento.n_asiento)" class="btn btn-success btn-sm">
                 Asignar
               </button>
             </td>
@@ -92,7 +92,7 @@
 <form [formGroup]='listaF' (ngSubmit)="agregarListaEspera()">
   <label for="n_socio">Número de socio:</label>
   <input type="number" id="n_socio" formControlName="n_socio" name="n_socio" required>
-  <button type="submit">Agregar</button>
+  <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
 </form>
 
 <h3>Lista de espera</h3>
@@ -103,6 +103,7 @@
         <tr>
           <th>Socio</th>
           <th>Fecha de inscripción</th>
+          <th>Acción</th>
         </tr>
       </thead>
       <tbody>
@@ -110,6 +111,11 @@
           <tr>
             <td>{{ item.socio }}</td>
             <td>{{ item.fecha_inscripcion }}</td>
+            <td>
+              <button (click)="eliminarDeListaEspera(item.n_socio)" class="btn btn-dark btn-sm">
+                Eliminar
+              </button>
+            </td>
           </tr>
         }
       </tbody>

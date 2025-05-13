@@ -129,11 +129,14 @@ class EventoViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='eliminar-lista-espera')
     def eliminarDeListaDeEspera(self, request):
-        n_socio = request.data.get('n_socio')
-        id_evento = request.data.get('id_evento')
+        n_socio = request.data.get('n_socio')  # Asegúrate de que el frontend envíe 'n_socio'
+        id_evento = request.data.get('id_evento')  # Asegúrate de que el frontend envíe 'id_evento'
+
+        if not n_socio or not id_evento:
+            return Response({'status': 'n_socio e id_evento son requeridos'}, status=400)
 
         try:
-            lista_espera = ListaEspera.objects.get(n_socio=n_socio, id_evento=id_evento)
+            lista_espera = ListaEspera.objects.get(socio=n_socio, evento_id=id_evento)
             lista_espera.delete()
             return Response({'status': 'socio eliminado de la lista de espera'})
         except ListaEspera.DoesNotExist:
@@ -166,7 +169,7 @@ class EventoViewSet(viewsets.ModelViewSet):
 
         try:
             lista_espera = ListaEspera.objects.filter(evento=id_evento)
-            lista_espera_data = [{'socio': item.socio.apellido, 'fecha_inscripcion': item.fecha_inscripcion} for item in lista_espera]
+            lista_espera_data = [{'socio': item.socio.apellido, 'fecha_inscripcion': item.fecha_inscripcion, 'n_socio': item.socio.n_socio} for item in lista_espera]
 
             return Response({'lista_espera': lista_espera_data})
         except Exception as e:

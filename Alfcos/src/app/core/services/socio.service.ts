@@ -73,7 +73,19 @@ export class SocioService {
 
   updateSocio(socioInfo: any, n_socio: number | undefined): Observable<string> {
     const url = `${environment.urlDjango}/api/socios/${n_socio}/`;
-    return this.http.put<string>(url, socioInfo, { headers: this.getAuthHeaders() }).pipe(
+
+    const formData = new FormData();
+    for (const key in socioInfo) {
+      if (socioInfo.hasOwnProperty(key) && socioInfo[key] !== undefined && socioInfo[key] !== null) {
+        if (key === 'foto' && socioInfo[key]) {
+          formData.append('foto', socioInfo[key], socioInfo[key].name);
+        } else if (key !== 'foto') {
+          formData.append(key, socioInfo[key]);
+        }
+      }
+    }
+
+    return this.http.put<string>(url, formData, { headers: this.getAuthHeaders() }).pipe(
       catchError(this.handleError)
     );
   }

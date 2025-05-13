@@ -136,9 +136,9 @@ export class EventoService {
         catchError(this.handleError)
       );
     }
-    eliminarLista(id_evento: number, socio: number): Observable<any> {
-      const url = `${environment.urlDjango}/api/eventos/eliminar-lista-espera/`;
-      const body = { id_evento, socio };
+    eliminarLista(id_evento: number, n_socio: number): Observable<any> {
+      const url = `${environment.urlDjango}/api/eventos/eliminar-lista-espera/`; // Asegúrate de que esta URL sea correcta
+      const body = { id_evento, n_socio }; // Asegúrate de que las claves coincidan con lo que espera el backend
       return this.http.post(url, body, { headers: this.getAuthHeaders() }).pipe(
         catchError(this.handleError)
       );

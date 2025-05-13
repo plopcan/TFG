@@ -19,8 +19,8 @@ export class EventoFormComponent implements OnInit {
   public eF!: FormGroup;
   public listaF!: FormGroup;
   errorMessage!: string;
-  asientos$: Observable<Asiento[]> | undefined;
-  listaEspera$: Observable<ListaEspera[]> | undefined;
+  asientos$: Observable<any> | undefined;
+  listaEspera$: Observable<any> | undefined;
   n_socio!: number;
 
   constructor(private fb: FormBuilder, private eventoServ: EventoService, private cdr: ChangeDetectorRef, private router: Router) {}
@@ -32,7 +32,7 @@ export class EventoFormComponent implements OnInit {
 
       this.eF = this.fb.group({
         nombre: [this.evento?.nombre || '', Validators.required],
-        precio: [this.evento?.precio || '', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
+        precio: [this.evento?.precio || '', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.00)]],
         fecha_ini: [this.evento?.fecha_ini || '', Validators.required],
         fecha_fin: [this.evento?.fecha_fin || '', Validators.required],
         tipo_id: [this.evento?.tipo_id || '', Validators.required],
@@ -150,6 +150,20 @@ export class EventoFormComponent implements OnInit {
         },
         (error) => {
           console.error('Error al agregar a la lista de espera:', error);
+        }
+      );
+    }
+  }
+
+  eliminarDeListaEspera(socio: number): void {
+    if (this.evento?.id_evento) {
+      this.eventoServ.eliminarLista(this.evento.id_evento, socio).subscribe(
+        () => {
+          console.log('Socio eliminado de la lista de espera.');
+          this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento); // Refresh lista de espera
+        },
+        (error) => {
+          console.error('Error al eliminar de la lista de espera:', error);
         }
       );
     }
