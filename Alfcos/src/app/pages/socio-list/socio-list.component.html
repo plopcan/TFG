@@ -1,3 +1,36 @@
+<form class="mb-3" (ngSubmit)="onFilterSubmit()" autocomplete="off">
+    <div class="row g-2 align-items-end">
+        <div class="col">
+            <label for="filtroNombre" class="form-label">Nombre</label>
+            <input id="filtroNombre" type="text" class="form-control" [(ngModel)]="filterNombre" name="filterNombre">
+        </div>
+        <div class="col">
+            <label for="filtroApellido" class="form-label">Apellidos</label>
+            <input id="filtroApellido" type="text" class="form-control" [(ngModel)]="filterApellido" name="filterApellido">
+        </div>
+        <div class="col">
+            <label for="filtroDni" class="form-label">DNI</label>
+            <input id="filtroDni" type="text" class="form-control" [(ngModel)]="filterDni" name="filterDni">
+        </div>
+        <div class="col">
+            <label for="filtroPagado" class="form-label">Pagado</label>
+            <select id="filtroPagado" class="form-select" [(ngModel)]="filterPagado" name="filterPagado">
+                <option value="">Todos</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+        <div class="col">
+            <label for="filtroNSocio" class="form-label">Nº Socio</label>
+            <input id="filtroNSocio" type="text" class="form-control" [(ngModel)]="filterNSocio" name="filterNSocio">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <button type="button" class="btn btn-secondary ms-1" (click)="clearFilters()">Limpiar</button>
+        </div>
+    </div>
+</form>
+
 @if (socioList$ | async; as response) {
     <table>
         <thead>
@@ -5,7 +38,7 @@
                <th>dni</th> 
                <th>nombre</th> 
                <th>apellidos</th> 
-               <th>pagado</th> 
+               <th>Periodo Pagado</th> 
                <th>Acciones</th>
             </tr>
         </thead>
@@ -15,9 +48,10 @@
             <td>{{item.dni}}</td>
             <td>{{item.nombre}}</td>
             <td>{{item.apellido}}</td>
-            <td>{{item.pagado}}</td>
+            <td>{{item.periodo_pagado}}</td>
             <td>
                 <button class="btn btn-info btn-sm" (click)="getSocio(item.n_socio)">Seleccionar</button><br>
+                <button class="btn btn-primary btn-sm" (click)="createCuota(item.n_socio)">Pagar Cuota</button><br>
                 <button class="btn btn-dark btn-sm mt-1" (click)="deleteSocio(item.n_socio)">Eliminar</button>
             </td>
         </tr>

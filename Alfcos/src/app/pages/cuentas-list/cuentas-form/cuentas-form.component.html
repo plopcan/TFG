@@ -27,11 +27,28 @@
         <label for="n_socio" class="form-label">Número de Socio:</label>
         <input id="n_socio" formControlName="n_socio" type="text" class="form-control" />
       </div>
+      <div class="col-md-12">
+        <label for="periodo" class="form-label">Periodo:</label>
+        <select id="periodo" formControlName="periodo" class="form-select">
+          <option value="">Seleccione un periodo</option>
+          <option value="1semestre">1er semestre</option>
+          <option value="2semestre">2do semestre</option>
+          <option value="anio">Año completo</option>
+        </select>
+      </div>
     </div>
     <div class="row mb-3" *ngIf="cuentasForm.get('tipo_id')?.value === '1'">
       <div class="col-md-12">
         <label for="id_evento" class="form-label">ID del Evento:</label>
         <input id="id_evento" formControlName="id_evento" type="text" class="form-control" />
+      </div>
+      <div class="col-md-12">
+        <label for="subtipo" class="form-label">Subtipo:</label>
+        <select id="subtipo" formControlName="subtipo" class="form-select">
+          <option value="">Seleccione un subtipo</option>
+          <option value="gasto">Gasto</option>
+          <option value="ingreso">Ingreso</option>
+        </select>
       </div>
     </div>
     <div class="d-grid gap-2">

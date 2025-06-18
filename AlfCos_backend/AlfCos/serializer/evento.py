@@ -25,7 +25,7 @@ class EventoSerializer(serializers.ModelSerializer):
         model = Evento
         fields = (
             "id_evento", "nombre", "fecha_ini", "fecha_fin", "precio", 
-            "descripcion", "tipo", "tipo_id", "n_asientos", "num_grupos", "plazasLibres",
+            "descripcion", "tipo", "tipo_id", "n_asientos", "num_grupos", "plazasLibres"
         )
         read_only_fields = ("id_evento",)
 

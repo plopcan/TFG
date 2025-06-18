@@ -59,10 +59,11 @@ class SocioViewSet(viewsets.ModelViewSet):
             instance.direccion = data.get('direccion', instance.direccion)
             instance.fecha_nacimiento = data.get('fecha_nacimiento', instance.fecha_nacimiento)
             instance.pagado = data.get('pagado', instance.pagado)
-            instance.sexo_id = data.get('sexo', instance.sexo_id)
+            instance.sexo_id = data.get('sexo_id', instance.sexo_id)
 
             # Actualizar la foto si se envió una nueva
             if foto:
+                instance.foto.delete(save=False)  # Eliminar la foto anterior si existe
                 instance.foto = foto
 
             # Guardar los cambios
@@ -76,11 +77,8 @@ class SocioViewSet(viewsets.ModelViewSet):
         
     @action(detail=False, methods=['post'], url_path='filtrar')
     def buscarSocio(self, request):
-        print("Content-Type:", request.content_type)  # Verifica el tipo de contenido
-        print("Data:", request.data)
         nombre = request.data.get('nombre')
         n_socio = request.data.get('n_socio')
-        print("numer: " + n_socio)
         apellidos = request.data.get('apellidos')
         sexo = request.data.get('sexo')
         pagado = request.data.get('pagado')
@@ -102,8 +100,20 @@ class SocioViewSet(viewsets.ModelViewSet):
             query &= Q(dni=dni)
 
         socios = Socio.objects.filter(query)
-        serializer = SocioSerializer(socios, many=True)
-        return Response(serializer.data)
+        # Paginación manual si se reciben page y page_size
+        page_size = int(request.data.get('page_size', 10))
+        page_number = int(request.data.get('page', 1))
+        total = socios.count()
+        start = (page_number - 1) * page_size
+        end = start + page_size
+        items = socios[start:end]
+        serializer = SocioSerializer(items, many=True)
+        return Response({
+            'count': total,
+            'next': f"?page={page_number + 1}&page_size={page_size}" if end < total else None,
+            'previous': f"?page={page_number - 1}&page_size={page_size}" if start > 0 else None,
+            'results': serializer.data
+        })
 
     @action(detail=False, methods=['get'], url_path='paginar')
     def paginar_socios(self, request):

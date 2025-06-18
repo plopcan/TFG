@@ -29,10 +29,11 @@ class CuentaSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class CuotaSerializer(serializers.ModelSerializer):
+    periodo = serializers.ChoiceField(choices=[('1semestre', '1semestre'), ('2semestre', '2semestre'), ('anio', 'anio')])
     class Meta:
         model = Cuota
         fields = (
-            "id_cuota", "n_socio", "fecha"
+            "id_cuota", "n_socio", "fecha", "periodo"
         )
         read_only_fields = ("id_cuota", "fecha")
 
@@ -40,6 +41,6 @@ class CuentaEventoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuentaEvento
         fields = (
-            "id_cuenta", "id_evento", "fecha"
+            "id_cuenta", "id_evento", "fecha", "subtipo"
         )
-        read_only_fields = ("id_cuenta", "id_evento", "fecha")
+        read_only_fields = ("id_cuenta", "id_evento", "fecha", "subtipo")

@@ -41,7 +41,7 @@ export class CuentasService {
   }
 
   getCuentas(id_cuenta: string | null, tipo: string): Observable<Cuentas | Cuota | CuentaEvento> {
-    let url = `${environment.urlDjango}/api/cuentas/filtrar/`;
+    let url = `${environment.urlDjango}/api/cuentas/buscar/`;
     console.log('Enviando solicitud a:', url);
     
     const body = { id_cuenta };  // Envía los datos en el body
@@ -128,13 +128,14 @@ export class CuentasService {
     getCuota(id_cuenta: number): Observable<Cuota> {
       const url = `${environment.urlDjango}/api/cuentas/get_cuota/`;
       const body = { id_cuenta: id_cuenta };  // Envía los datos en el body
-      return this.http.post<{ cuenta: Cuentas; n_socio: number }>(url, body, { headers: this.getAuthHeaders() }).pipe(
+      return this.http.post<{ cuenta: Cuentas; n_socio: number; periodo: string }>(url, body, { headers: this.getAuthHeaders() }).pipe(
         map((response) => {
           // Combina las propiedades de 'cuenta' con 'id_evento' para crear un objeto CuentaEvento
           return {
             ...response.cuenta,
             n_socio: response.n_socio, // Agrega la propiedad 'eventoId'
-            isCuota: true // Marca como CuentaEvento
+            isCuota: true, // Marca como CuentaEvento
+            periodo: response.periodo || '' // Asegúrate de que periodo esté definido
           } as Cuota;
         }),
         catchError(this.handleError)
@@ -144,13 +145,14 @@ export class CuentasService {
       const url = `${environment.urlDjango}/api/cuentas/get_cuenta_evento/`;
       const body = { id_cuenta };
 
-      return this.http.post<{ cuenta: Cuentas; id_evento: number }>(url, body, { headers: this.getAuthHeaders() }).pipe(
+      return this.http.post<{ cuenta: Cuentas; id_evento: number, subtipo: string }>(url, body, { headers: this.getAuthHeaders() }).pipe(
         map((response) => {
           // Combina las propiedades de 'cuenta' con 'id_evento' para crear un objeto CuentaEvento
           return {
             ...response.cuenta,
             eventoId: response.id_evento, // Agrega la propiedad 'eventoId'
-            isCuentaEvento: true // Marca como CuentaEvento
+            isCuentaEvento: true, // Marca como CuentaEvento
+            subtipo: response.subtipo || ''
           } as CuentaEvento;
         }),
         catchError((error) => {
@@ -171,11 +173,31 @@ export class CuentasService {
     this.cuentasSubject.next(undefined);
   }
 
-  descargarCuentas(){
+  descargarCuentas(filters: any = {}) {
     console.log('Descargando cuentas...');
     const url = `${environment.urlDjango}/api/cuentas/descargar_pdf/`;
-    return this.http.get(url, { headers: this.getAuthHeaders(), responseType: 'blob' }).pipe(
+    const headers = this.getAuthHeaders();
+    // Ahora enviamos los filtros como body en una petición POST
+    return this.http.post(url, filters, { headers, responseType: 'blob' }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  filterCuentas(filters: any, page: number = 1, pageSize: number = 10): Observable<any> {
+    const url = `${environment.urlDjango}/api/cuentas/filtrar/`;
+    const headers = this.getAuthHeaders();
+    const body = { ...filters, page, page_size: pageSize };
+    return this.http.post<any>(url, body, { headers }).pipe(
+      map(response => {
+        // Si el backend devuelve un array plano, lo envolvemos en { results: [...] }
+        if (Array.isArray(response)) {
+          return { results: response };
+        }
+        // Si ya es un objeto con results, lo devolvemos tal cual
+        return response;
+      }),
       catchError(this.handleError)
     );
   }
 }
+

@@ -1,16 +1,17 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EventoService } from '../../../core/services/evento.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Asiento } from '../../../interfaces/asiento';
 import { ListaEspera } from '../../../interfaces/lista-espera';
 import { catchError, EMPTY, Observable } from 'rxjs';
+import { CuentasService } from '../../../core/services/cuentas.service';
 
 @Component({
   selector: 'app-evento-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './evento-form.component.html',
   styleUrls: ['./evento-form.component.css']
 })
@@ -22,8 +23,20 @@ export class EventoFormComponent implements OnInit {
   asientos$: Observable<any> | undefined;
   listaEspera$: Observable<any> | undefined;
   n_socio!: number;
+  asientosPorGrupo: { [grupo: number]: any[] } = {};
+  paginacionGrupos: { [grupo: number]: { pagina: number, pageSize: number } } = {}; // Estado de paginación por grupo
+  Math = Math; // Exponer Math para la plantilla
 
-  constructor(private fb: FormBuilder, private eventoServ: EventoService, private cdr: ChangeDetectorRef, private router: Router) {}
+  // Paginación lista de espera
+  listaEsperaCompleta: any[] = [];
+  listaEsperaPagina: any[] = [];
+  paginaListaEspera = 1;
+  pageSizeListaEspera = 5;
+
+  // Solo se necesita el input para cada asiento
+  asignarSocioInput: { [key: string]: string } = {};
+
+  constructor(private fb: FormBuilder, private eventoServ: EventoService, private cdr: ChangeDetectorRef, private router: Router, private cuentaServ: CuentasService) {}
 
   ngOnInit(): void {
     this.eventoServ.evento$.subscribe((evento) => {
@@ -57,6 +70,20 @@ export class EventoFormComponent implements OnInit {
           })
         );
 
+        // Agrupar asientos por grupo al recibirlos
+        this.asientos$.subscribe((asientos) => {
+          this.asientosPorGrupo = {};
+          this.paginacionGrupos = {};
+          asientos.forEach((asiento: any) => {
+            if (!this.asientosPorGrupo[asiento.n_grupo]) {
+              this.asientosPorGrupo[asiento.n_grupo] = [];
+              this.paginacionGrupos[asiento.n_grupo] = { pagina: 1, pageSize: 5 }; // pageSize por defecto
+            }
+            this.asientosPorGrupo[asiento.n_grupo].push(asiento);
+          });
+          this.cdr.markForCheck();
+        });
+
         this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento).pipe(
           catchError((error: string) => {
             this.errorMessage = error;
@@ -64,11 +91,50 @@ export class EventoFormComponent implements OnInit {
           })
         );
         this.listaEspera$.subscribe((asientos) => {
-          console.log('Asientos recibidos en el componente:', asientos);
-          console.log('Tipo de asientos:', Array.isArray(asientos) ? 'Arreglo' : typeof asientos);
+          this.listaEsperaCompleta = asientos;
+          this.paginaListaEspera = 1;
+          this.actualizarListaEsperaPagina();
         });
       }
     });
+  }
+
+  actualizarListaEsperaPagina() {
+    const start = (this.paginaListaEspera - 1) * this.pageSizeListaEspera;
+    this.listaEsperaPagina = this.listaEsperaCompleta.slice(start, start + this.pageSizeListaEspera);
+  }
+
+  cambiarPaginaListaEspera(incremento: number) {
+    const total = this.listaEsperaCompleta.length;
+    const maxPagina = Math.max(1, Math.ceil(total / this.pageSizeListaEspera));
+    let nuevaPagina = this.paginaListaEspera + incremento;
+    if (nuevaPagina < 1) nuevaPagina = 1;
+    if (nuevaPagina > maxPagina) nuevaPagina = maxPagina;
+    this.paginaListaEspera = nuevaPagina;
+    this.actualizarListaEsperaPagina();
+  }
+
+  // Devuelve los asientos paginados para un grupo
+  getAsientosPaginados(grupo: number | string): any[] {
+    grupo = typeof grupo === 'string' ? parseInt(grupo, 10) : grupo;
+    const pageSize = this.paginacionGrupos[grupo]?.pageSize || 5;
+    const pagina = this.paginacionGrupos[grupo]?.pagina || 1;
+    const asientos = this.asientosPorGrupo[grupo] || [];
+    const start = (pagina - 1) * pageSize;
+    return asientos.slice(start, start + pageSize);
+  }
+
+  // Cambia de página para un grupo
+  cambiarPagina(grupo: number | string, incremento: number) {
+    grupo = typeof grupo === 'string' ? parseInt(grupo, 10) : grupo;
+    const paginacion = this.paginacionGrupos[grupo];
+    if (!paginacion) return;
+    const total = this.asientosPorGrupo[grupo]?.length || 0;
+    const maxPagina = Math.ceil(total / paginacion.pageSize);
+    let nuevaPagina = paginacion.pagina + incremento;
+    if (nuevaPagina < 1) nuevaPagina = 1;
+    if (nuevaPagina > maxPagina) nuevaPagina = maxPagina;
+    this.paginacionGrupos[grupo].pagina = nuevaPagina;
   }
 
   sendData() {
@@ -107,7 +173,11 @@ export class EventoFormComponent implements OnInit {
   }
 
   trackByAttributes(index: number, item: any): string {
-    return `${item.n_grupo}-${item.n_asiento}`; // Combina los dos atributos en un string único
+    return `${item.n_grupo}-${item.n_asiento}`;
+  }
+
+  trackBySocio(index: number, item: any): number {
+    return item.n_socio;
   }
 
   vaciarAsiento(n_grupo: number, n_asiento: number): void {
@@ -115,7 +185,18 @@ export class EventoFormComponent implements OnInit {
       this.eventoServ.vaciarAsiento(this.evento.id_evento, n_grupo, n_asiento).subscribe(
         () => {
           console.log('Asiento vaciado correctamente.');
-          this.asientos$ = this.eventoServ.getAsientos(this.evento.id_evento); // Refresh asientos
+          // Refrescar y reagrupar asientos
+          this.asientos$ = this.eventoServ.getAsientos(this.evento.id_evento);
+          this.asientos$.subscribe((asientos) => {
+            this.asientosPorGrupo = {};
+            asientos.forEach((asiento: any) => {
+              if (!this.asientosPorGrupo[asiento.n_grupo]) {
+                this.asientosPorGrupo[asiento.n_grupo] = [];
+              }
+              this.asientosPorGrupo[asiento.n_grupo].push(asiento);
+            });
+            this.cdr.markForCheck();
+          });
         },
         (error) => {
           console.error('Error al vaciar el asiento:', error);
@@ -124,14 +205,28 @@ export class EventoFormComponent implements OnInit {
     }
   }
 
-  asignarAsiento(n_grupo: number, n_asiento: number): void {
-    const socio = prompt('Ingrese el número de socio:');
+  // Asignar asiento usando el valor del campo
+  asignarAsientoForm(n_grupo: number, n_asiento: number) {
+    const key = `${n_grupo}-${n_asiento}`;
+    const socio = this.asignarSocioInput[key];
+    const info = {'descripcion': 'Reserva de asiento ' + key,'tipo_id': 3, 'cantida': this.evento?.precio, 'subtipo': 'entrada'};
     if (socio && this.evento?.id_evento) {
-      console.log('Asiento:', socio);
+      this.cuentaServ.addCuentas(info);
       this.eventoServ.asignarAsiento(this.evento.id_evento, +socio, n_grupo, n_asiento).subscribe(
         () => {
-          console.log('Asiento asignado correctamente.');
-          this.asientos$ = this.eventoServ.getAsientos(this.evento.id_evento); // Refresh asientos
+          this.asignarSocioInput[key] = '';
+          // Refrescar y reagrupar asientos
+          this.asientos$ = this.eventoServ.getAsientos(this.evento.id_evento);
+          this.asientos$.subscribe((asientos) => {
+            this.asientosPorGrupo = {};
+            asientos.forEach((asiento: any) => {
+              if (!this.asientosPorGrupo[asiento.n_grupo]) {
+                this.asientosPorGrupo[asiento.n_grupo] = [];
+              }
+              this.asientosPorGrupo[asiento.n_grupo].push(asiento);
+            });
+            this.cdr.markForCheck();
+          });
         },
         (error) => {
           console.error('Error al asignar el asiento:', error);
@@ -146,7 +241,12 @@ export class EventoFormComponent implements OnInit {
       this.eventoServ.agregarLista(this.evento.id_evento, this.n_socio).subscribe(
         () => {
           console.log('Socio agregado a la lista de espera.');
-          this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento); // Refresh lista de espera
+          this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento);
+          this.listaEspera$.subscribe((asientos) => {
+            this.listaEsperaCompleta = asientos;
+            this.paginaListaEspera = 1;
+            this.actualizarListaEsperaPagina();
+          });
         },
         (error) => {
           console.error('Error al agregar a la lista de espera:', error);
@@ -160,7 +260,16 @@ export class EventoFormComponent implements OnInit {
       this.eventoServ.eliminarLista(this.evento.id_evento, socio).subscribe(
         () => {
           console.log('Socio eliminado de la lista de espera.');
-          this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento); // Refresh lista de espera
+          this.listaEspera$ = this.eventoServ.getListaEspera(this.evento.id_evento);
+          this.listaEspera$.subscribe((asientos) => {
+            this.listaEsperaCompleta = asientos;
+            // Si la página actual queda vacía, retrocede una página si es posible
+            const maxPagina = Math.max(1, Math.ceil(this.listaEsperaCompleta.length / this.pageSizeListaEspera));
+            if (this.paginaListaEspera > maxPagina) {
+              this.paginaListaEspera = maxPagina;
+            }
+            this.actualizarListaEsperaPagina();
+          });
         },
         (error) => {
           console.error('Error al eliminar de la lista de espera:', error);

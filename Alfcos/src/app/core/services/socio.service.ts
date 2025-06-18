@@ -48,13 +48,11 @@ export class SocioService {
 
   getSocio(n_socio: string | null): Observable<Socio> {
     const url = `${environment.urlDjango}/api/socios/filtrar/`;
-    
-    const body = { n_socio : n_socio };  // Envía los datos en el body
-    console.log(body);
-    const headers = this.getAuthHeaders();  // Asegúrate de que sean correctos
+    const body = { n_socio: n_socio };
+    const headers = this.getAuthHeaders();
 
-    return this.http.post<Socio[]>(url, body, { headers }).pipe(
-      map(socios => socios[0])  // Tomar el primer elemento del array
+    return this.http.post<any>(url, body, { headers }).pipe(
+      map(response => response.results && response.results.length > 0 ? response.results[0] : null)
     );
   }
 
@@ -112,6 +110,16 @@ export class SocioService {
   deleteSocio(id: number): Observable<any> {
     const url = `${environment.urlDjango}/api/socios/${id}/`;
     return this.http.delete(url, { headers: this.getAuthHeaders() }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  filterSocios(filters: any, page: number = 1, pageSize: number = 10): Observable<any> {
+    const url = `${environment.urlDjango}/api/socios/filtrar/`;
+    const headers = this.getAuthHeaders();
+    const body = { ...filters, page, page_size: pageSize };
+    return this.http.post<any>(url, body, { headers }).pipe(
+      // El backend ya devuelve {count, next, previous, results}
       catchError(this.handleError)
     );
   }

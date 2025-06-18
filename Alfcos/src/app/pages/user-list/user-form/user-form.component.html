@@ -12,7 +12,7 @@
         <label for="Npassword" class="form-label">Confirmar nueva contraseña:</label>
         <input type="password" formControlName="new_psw_confirm" id="confirm" class="form-control"/><br/>
         <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">Añadir</button>
+            <button type="submit" class="btn btn-primary">{{ user ? 'Actualizar' : 'Añadir' }}</button>
         </div>
         @if(submitted && uF.controls['new_psw_confirm'].errors){
         @if(uF.controls['new_psw_confirm'].errors['matching']){

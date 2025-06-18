@@ -17,12 +17,13 @@ class SocioSerializer(serializers.ModelSerializer):
             FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
         ]
     )
+    periodo_pagado = serializers.SerializerMethodField()
 
     class Meta:
         model = Socio
         fields = (
             "n_socio", "nombre", "apellido", "dni", "telefono", "email", "direccion", 
-            "fecha_nacimiento", "pagado", "sexo", "sexo_id", "foto", "c_postal", "strickes"
+            "fecha_nacimiento", "pagado", "sexo", "sexo_id", "foto", "c_postal", "strickes", "periodo_pagado", 
         )
         read_only_fields = ("n_socio",)  # Solo n_socio es de solo lectura
         extra_kwargs = {
@@ -54,7 +55,7 @@ class SocioSerializer(serializers.ModelSerializer):
         if sexo_id:
             # Busca el Sexo correspondiente
             try:
-                sexo = Sexo.objects.get(id=sexo_id)
+                sexo = Sexo.objects.get(sexo_id=sexo_id)
             except Sexo.DoesNotExist:
                 raise serializers.ValidationError({"sexo_id": "El sexo proporcionado no existe."})
 
@@ -63,3 +64,21 @@ class SocioSerializer(serializers.ModelSerializer):
 
         # Actualiza el resto de los campos
         return super().update(instance, validated_data)
+
+    def get_periodo_pagado(self, obj):
+        # Devuelve una lista de periodos de las cuotas asociadas al socio
+        return list(
+            obj.cuota_set.filter(
+                cuenta__isnull=False,
+                cuenta__anulada=False
+            ).values_list('periodo', flat=True)
+        )
+    
+class SexoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sexo
+        fields = ('sexo_id', 'nombre')
+        read_only_fields = ('sexo_id',)  # Solo sexo_id es de solo lectura
+        extra_kwargs = {
+            'nombre': {'required': True, 'trim_whitespace': True}  # Trim automático de espacios en blanco
+        }

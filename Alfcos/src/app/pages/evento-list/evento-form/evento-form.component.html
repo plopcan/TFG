@@ -51,42 +51,70 @@
   </form>
 </div>
 
-<h3>Asientos relacionados</h3>
-@if (asientos$ | async; as asientos) {
-  @if (asientos.length > 0) {
-    <table>
-      <thead>
-        <tr>
-          <th>Número de asiento</th>
-          <th>Fecha</th>
-          <th>Grupo</th>
-          <th>Socio</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (asiento of asientos; track trackByAttributes) {
-          <tr>
-            <td>{{ asiento.n_asiento }}</td>
-            <td>{{ asiento.fecha }}</td>
-            <td>{{ asiento.n_grupo }}</td>
-            <td>{{ asiento.n_socio || 'N/A' }}</td>
-            <td>
-              <button *ngIf="asiento.n_socio !== null" (click)="vaciarAsiento(asiento.n_grupo, asiento.n_asiento)" class="btn btn-dark btn-sm">
-                Vaciar
-              </button>
-              <button *ngIf="asiento.n_socio === null" (click)="asignarAsiento(asiento.n_grupo, asiento.n_asiento)" class="btn btn-success btn-sm">
-                Asignar
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  } @else {
-    <p>No hay asientos relacionados.</p>
-  }
-}
+<h3>Asientos por grupo</h3>
+<div *ngFor="let grupo of (asientosPorGrupo | keyvalue)">
+  <h4>Grupo {{ grupo.key }}</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Número de asiento</th>
+        <th>Socio</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let asiento of getAsientosPaginados(grupo.key); trackBy: trackByAttributes">
+        <td>{{ asiento.n_asiento }}</td>
+        <td>{{ asiento.n_socio || 'N/A' }}</td>
+        <td>
+          <button *ngIf="asiento.n_socio !== null" (click)="vaciarAsiento(asiento.n_grupo, asiento.n_asiento)" class="btn btn-dark btn-sm">
+            Vaciar
+          </button>
+          <ng-container *ngIf="asiento.n_socio === null">
+            <input type="number"
+                   [(ngModel)]="asignarSocioInput[asiento.n_grupo + '-' + asiento.n_asiento]"
+                   name="socio_{{asiento.n_grupo}}_{{asiento.n_asiento}}"
+                   min="1"
+                   required
+                   style="width:80px; margin-right:4px;"
+                   class="form-control form-control-sm d-inline-block" />
+            <button class="btn btn-success btn-sm"
+                    (click)="asignarAsientoForm(asiento.n_grupo, asiento.n_asiento)">
+              Asignar
+            </button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- Controles de paginación -->
+  <div class="pagination-controls" style="margin-bottom: 1em;">
+    <button class="btn btn-secondary btn-sm"
+            (click)="cambiarPagina(grupo.key, -1)"
+            [disabled]="!paginacionGrupos[+grupo.key] || paginacionGrupos[+grupo.key].pagina === 1">
+      Anterior
+    </button>
+    <span>
+      Página {{ paginacionGrupos[+grupo.key].pagina || 1 }} /
+      {{
+        asientosPorGrupo[+grupo.key]
+          ? Math.max(1, Math.ceil(asientosPorGrupo[+grupo.key].length / (paginacionGrupos[+grupo.key].pageSize || 5)))
+          : 1
+      }}
+    </span>
+    <button class="btn btn-secondary btn-sm"
+            (click)="cambiarPagina(grupo.key, 1)"
+            [disabled]="
+              !paginacionGrupos[+grupo.key] ||
+              paginacionGrupos[+grupo.key].pagina ===
+              (asientosPorGrupo[+grupo.key]
+                ? Math.max(1, Math.ceil(asientosPorGrupo[+grupo.key].length / (paginacionGrupos[+grupo.key].pageSize || 5)))
+                : 1)
+            ">
+      Siguiente
+    </button>
+  </div>
+</div>
 
 <h3>Agregar a la lista de espera</h3>
 <form [formGroup]='listaF' (ngSubmit)="agregarListaEspera()">
@@ -96,31 +124,44 @@
 </form>
 
 <h3>Lista de espera</h3>
-@if (listaEspera$ | async; as listaEspera) {
-  @if (listaEspera.length > 0) {
-    <table>
-      <thead>
-        <tr>
-          <th>Socio</th>
-          <th>Fecha de inscripción</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of listaEspera; track trackByAttributes) {
-          <tr>
-            <td>{{ item.socio }}</td>
-            <td>{{ item.fecha_inscripcion }}</td>
-            <td>
-              <button (click)="eliminarDeListaEspera(item.n_socio)" class="btn btn-dark btn-sm">
-                Eliminar
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  } @else {
-    <p>No hay usuarios en la lista de espera.</p>
-  }
-}
+<div *ngIf="listaEsperaCompleta.length > 0; else noListaEspera">
+  <table>
+    <thead>
+      <tr>
+        <th>Socio</th>
+        <th>Fecha de inscripción</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of listaEsperaPagina; trackBy: trackBySocio">
+        <td>{{ item.socio }}</td>
+        <td>{{ item.fecha_inscripcion }}</td>
+        <td>
+          <button (click)="eliminarDeListaEspera(item.n_socio)" class="btn btn-dark btn-sm">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="pagination-controls" style="margin-bottom: 1em;">
+    <button class="btn btn-secondary btn-sm"
+            (click)="cambiarPaginaListaEspera(-1)"
+            [disabled]="paginaListaEspera === 1">
+      Anterior
+    </button>
+    <span>
+      Página {{ paginaListaEspera }} /
+      {{ Math.max(1, Math.ceil(listaEsperaCompleta.length / pageSizeListaEspera)) }}
+    </span>
+    <button class="btn btn-secondary btn-sm"
+            (click)="cambiarPaginaListaEspera(1)"
+            [disabled]="paginaListaEspera === Math.max(1, Math.ceil(listaEsperaCompleta.length / pageSizeListaEspera))">
+      Siguiente
+    </button>
+  </div>
+</div>
+<ng-template #noListaEspera>
+  <p>No hay usuarios en la lista de espera.</p>
+</ng-template>

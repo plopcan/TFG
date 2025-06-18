@@ -25,7 +25,7 @@ REM Iniciar frontend Angular en una nueva ventana
 start "Frontend Angular" cmd /k "cd /d %~dp0Alfcos && npm start && pause"
 
 REM Esperar unos segundos para que los servidores tengan tiempo de iniciarse
-timeout /t 20 /nobreak >nul
+timeout /t 11 /nobreak >nul
 
 REM Abrir navegador URLs
 start "" "http://localhost:4200"  # Angular

@@ -5,11 +5,12 @@ import { catchError, EMPTY, Observable, BehaviorSubject } from 'rxjs';
 import { Socio } from '../../interfaces/socio';
 import { ErrorMessageComponent } from "../../components/error-message/error-message.component";
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-socio-list',
   standalone: true,
-  imports: [AsyncPipe, ErrorMessageComponent],
+  imports: [AsyncPipe, ErrorMessageComponent, FormsModule],
   templateUrl: './socio-list.component.html',
   styleUrl: './socio-list.component.css'
 })
@@ -23,6 +24,13 @@ export class SocioListComponent implements OnInit {
   currentPage = 1;
   hasNextPage = true;
 
+  // Filtro properties
+  filterNombre: string = '';
+  filterApellido: string = '';
+  filterDni: string = '';
+  filterPagado: string = '';
+  filterNSocio: string = '';
+
   constructor(private service: SocioService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit(): void {
@@ -30,12 +38,68 @@ export class SocioListComponent implements OnInit {
   }
 
   loadPage(page: number): void {
+    if (this.hasActiveFilters()) {
+      this.socioList$ = this.service.filterSocios(this.getFilterData(), page).pipe(
+        catchError((error: string) => {
+          this.errorMessage = error;
+          return EMPTY;
+        })
+      );
+      this.socioList$.subscribe(response => {
+        this.hasNextPage = !!response?.next;
+      });
+      return;
+    }
     this.socioList$ = this.service.getSocioListPaginated(page).pipe(
       catchError((error: string) => {
         this.errorMessage = error;
         return EMPTY;
       })
     );
+    this.socioList$.subscribe(response => {
+      this.hasNextPage = !!response?.next;
+    });
+  }
+
+  getFilterData(): any {
+    const filterData: any = {};
+    if (this.filterNombre) filterData.nombre = this.filterNombre;
+    if (this.filterApellido) filterData.apellidos = this.filterApellido;
+    if (this.filterDni) filterData.dni = this.filterDni;
+    if (this.filterPagado) filterData.pagado = this.filterPagado;
+    if (this.filterNSocio) filterData.n_socio = this.filterNSocio;
+    return filterData;
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.filterNombre || this.filterApellido || this.filterDni || this.filterPagado || this.filterNSocio);
+  }
+
+  filterSocios(page: number = 1): void {
+    this.socioList$ = this.service.filterSocios(this.getFilterData(), page).pipe(
+      catchError((error: string) => {
+        this.errorMessage = error;
+        return EMPTY;
+      })
+    );
+    this.socioList$.subscribe(response => {
+      this.hasNextPage = !!response?.next;
+    });
+  }
+
+  onFilterSubmit(): void {
+    this.currentPage = 1;
+    this.filterSocios(this.currentPage);
+  }
+
+  clearFilters(): void {
+    this.filterNombre = '';
+    this.filterApellido = '';
+    this.filterDni = '';
+    this.filterPagado = '';
+    this.filterNSocio = '';
+    this.currentPage = 1;
+    this.loadPage(this.currentPage);
   }
 
   previousPage(): void {
@@ -77,5 +141,10 @@ export class SocioListComponent implements OnInit {
         this.errorMessage = "Error al eliminar el socio";
       }
     );
+  }
+
+  createCuota(n_socio: number): void {
+        this.router.navigate(['/cuentaForm'], 
+          {queryParams: { n_socio: n_socio, tipo: 'Cuota' }});
   }
 }

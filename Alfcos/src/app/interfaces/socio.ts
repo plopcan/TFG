@@ -5,7 +5,7 @@ export interface Socio {
     apellido: string
     email: string
     sexo_id: string
-    pagado: boolean
+    periodo_pagado: string
     c_postal: string
     telefono: string
     foto: string

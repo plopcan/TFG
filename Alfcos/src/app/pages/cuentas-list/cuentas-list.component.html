@@ -2,6 +2,65 @@
   <button class="btn btn-primary" (click)="descargar()">Descargar</button>
   <br><br>
   
+  <form class="mb-3" (ngSubmit)="onFilterSubmit()" autocomplete="off">
+    <div class="row g-2 align-items-end">
+      <div class="col">
+        <label for="filtroTipo" class="form-label">Tipo</label>
+        <input id="filtroTipo" type="text" class="form-control" [(ngModel)]="filterTipo" name="filterTipo">
+      </div>
+      <div class="col">
+        <label for="filtroAnulada" class="form-label">Anulada</label>
+        <select id="filtroAnulada" class="form-select" [(ngModel)]="filterAnulada" name="filterAnulada">
+          <option value="">Todas</option>
+          <option value="true">Sí</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="form-label">Fecha inicio</label>
+        <div class="row gx-1">
+          <div class="col">
+            <input type="number" min="1" max="31" class="form-control" placeholder="Día" [(ngModel)]="filterFechaInicioDia" name="filterFechaInicioDia">
+          </div>
+          <div class="col">
+            <select class="form-control" [(ngModel)]="filterFechaInicioMes" name="filterFechaInicioMes">
+              <option value="">Mes</option>
+              @for(mes of meses; track mes) {
+              <option value = "{{mes}}">{{ mes }}</option>
+              }
+            </select>
+          </div>
+          <div class="col">
+            <input type="number" min="1" class="form-control" placeholder="Año" [(ngModel)]="filterFechaInicioAnio" name="filterFechaInicioAnio">
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <label class="form-label">Fecha fin</label>
+        <div class="row gx-1">
+          <div class="col">
+            <input type="number" min="1" max="31" class="form-control" placeholder="Día" [(ngModel)]="filterFechaFinDia" name="filterFechaFinDia">
+          </div>
+          <div class="col">
+            <select class="form-control" [(ngModel)]="filterFechaFinMes" name="filterFechaFinMes">
+              <option value="">Mes</option>
+              @for(mes of meses; track mes) {
+              <option value = "{{mes}}">{{ mes }}</option>
+              }
+            </select>
+          </div>
+          <div class="col">
+            <input type="number" min="1" class="form-control" placeholder="Año" [(ngModel)]="filterFechaFinAnio" name="filterFechaFinAnio">
+          </div>
+        </div>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <button type="button" class="btn btn-secondary ms-1" (click)="clearFilters()">Limpiar</button>
+      </div>
+    </div>
+  </form>
+  
   <table>
     <thead>
       <tr>

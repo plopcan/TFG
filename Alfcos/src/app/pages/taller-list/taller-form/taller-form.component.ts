@@ -115,7 +115,7 @@ export class TallerFormComponent implements OnInit {
   sendData() {
     if (this.tF.valid) {
       const formData = this.tF.value;
-      const selectedDias = ['Lunes', 'Martes', 'Liercoles', 'Jueves', 'Viernes'].filter(
+      const selectedDias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'].filter(
         (dia) => formData[dia]
       );
       const finalData = { ...formData, dia: selectedDias };
